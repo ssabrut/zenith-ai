@@ -11,7 +11,7 @@ services:
       - 6334
       - 6335
     volumes:
-      - ./qdrant_data:/qdrant/storage
+      - ./data/qdrant_data:/qdrant/storage
     healthcheck:
       test: ["CMD-SHELL", "echo -e || exit 1"]
       interval: 20s
@@ -23,6 +23,24 @@ services:
       - public
     env_file:
       - .env
+
+  reranker:
+    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.5
+    platform: linux/amd64
+    container_name: reranker-service
+    restart: always
+    ports:
+      - "8080:80"
+    volumes:
+      - ./data/model_data:/data
+    command:
+      - --model-id
+      - BAAI/bge-reranker-v2-m3
+      - --port
+      - "80"
+    networks:
+      - internal
+      - public
 
 networks:
   internal:
