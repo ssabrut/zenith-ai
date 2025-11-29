@@ -119,6 +119,8 @@ jedi==0.19.2
     # via ipython
 jinja2==3.1.6
     # via fastapi
+joblib==1.5.2
+    # via scikit-learn
 jsonpatch==1.33
     # via langchain-core
 jsonpointer==3.0.0
@@ -167,7 +169,6 @@ langgraph-sdk==0.2.9
     # via langgraph
 langsmith==0.4.43
     # via
-    #   zenith-ai (pyproject.toml)
     #   langchain-classic
     #   langchain-community
     #   langchain-core
@@ -197,8 +198,13 @@ nest-asyncio==1.6.0
     #   ipykernel
 numpy==2.2.6
     # via
+    #   zenith-ai (pyproject.toml)
     #   langchain-community
+    #   pandas
     #   qdrant-client
+    #   scikit-learn
+    #   scipy
+    #   xgboost
 ollama==0.6.1
     # via langchain-ollama
 orjson==3.11.4
@@ -214,6 +220,8 @@ packaging==25.0
     #   langchain-core
     #   langsmith
     #   marshmallow
+pandas==2.3.3
+    # via zenith-ai (pyproject.toml)
 parso==0.8.5
     # via jedi
 pathspec==0.12.1
@@ -266,7 +274,9 @@ pygments==2.19.2
     #   ipython
     #   rich
 python-dateutil==2.9.0.post0
-    # via jupyter-client
+    # via
+    #   jupyter-client
+    #   pandas
 python-dotenv==1.2.1
     # via
     #   zenith-ai (pyproject.toml)
@@ -277,6 +287,8 @@ python-multipart==0.0.20
     # via fastapi
 pytokens==0.3.0
     # via black
+pytz==2025.2
+    # via pandas
 pyyaml==6.0.3
     # via
     #   langchain-classic
@@ -289,6 +301,8 @@ pyzmq==27.1.0
     #   jupyter-client
 qdrant-client==1.16.1
     # via langchain-qdrant
+rapidfuzz==3.14.3
+    # via zenith-ai (pyproject.toml)
 requests==2.32.5
     # via
     #   firecrawl-py
@@ -308,6 +322,12 @@ rich-toolkit==0.15.1
     #   fastapi-cloud-cli
 rignore==0.7.6
     # via fastapi-cloud-cli
+scikit-learn==1.7.2
+    # via zenith-ai (pyproject.toml)
+scipy==1.15.3
+    # via
+    #   scikit-learn
+    #   xgboost
 sentry-sdk==2.44.0
     # via fastapi-cloud-cli
 shellingham==1.5.4
@@ -328,6 +348,8 @@ tenacity==9.1.2
     # via
     #   langchain-community
     #   langchain-core
+threadpoolctl==3.6.0
+    # via scikit-learn
 tomli==2.3.0
     # via
     #   black
@@ -373,6 +395,8 @@ typing-inspection==0.4.2
     # via
     #   pydantic
     #   pydantic-settings
+tzdata==2025.2
+    # via pandas
 urllib3==2.5.0
     # via
     #   qdrant-client
@@ -393,6 +417,8 @@ websockets==15.0.1
     # via
     #   firecrawl-py
     #   uvicorn
+xgboost==3.1.2
+    # via zenith-ai (pyproject.toml)
 xxhash==3.6.0
     # via langgraph
 yarl==1.22.0
