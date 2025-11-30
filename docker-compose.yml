@@ -24,24 +24,6 @@ services:
     env_file:
       - .env
 
-  reranker:
-    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.5
-    platform: linux/amd64
-    container_name: reranker-service
-    restart: always
-    ports:
-      - "8080:80"
-    volumes:
-      - ./data/model_data:/data
-    command:
-      - --model-id
-      - BAAI/bge-reranker-v2-m3
-      - --port
-      - "80"
-    networks:
-      - internal
-      - public
-
 networks:
   internal:
     driver: bridge
