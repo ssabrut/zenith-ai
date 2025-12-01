@@ -10,6 +10,8 @@ aiohttp==3.13.2
     # via langchain-community
 aiosignal==1.4.0
     # via aiohttp
+alembic==1.17.2
+    # via mlflow
 annotated-doc==0.0.4
     # via fastapi
 annotated-types==0.7.0
@@ -37,8 +39,13 @@ beautifulsoup4==4.14.2
     # via unstructured
 black==25.11.0
     # via zenith-ai (pyproject.toml)
+blinker==1.9.0
+    # via flask
 cachetools==6.2.2
-    # via google-auth
+    # via
+    #   google-auth
+    #   mlflow-skinny
+    #   mlflow-tracing
 certifi==2025.11.12
     # via
     #   httpcore
@@ -55,11 +62,15 @@ charset-normalizer==3.4.4
 click==8.3.1
     # via
     #   black
+    #   flask
+    #   mlflow-skinny
     #   nltk
     #   python-oxmsg
     #   rich-toolkit
     #   typer
     #   uvicorn
+cloudpickle==3.1.2
+    # via mlflow-skinny
 coloredlogs==15.0.1
     # via onnxruntime
 comm==0.2.3
@@ -68,11 +79,16 @@ contourpy==1.3.2
     # via matplotlib
 cryptography==46.0.3
     # via
+    #   mlflow
     #   msoffcrypto-tool
     #   pdfminer-six
     #   unstructured-client
 cycler==0.12.1
     # via matplotlib
+databricks-sdk==0.73.0
+    # via
+    #   mlflow-skinny
+    #   mlflow-tracing
 dataclasses-json==0.6.7
     # via
     #   langchain-community
@@ -85,6 +101,8 @@ deprecated==1.3.1
     # via pikepdf
 dnspython==2.8.0
     # via email-validator
+docker==7.1.0
+    # via mlflow
 effdet==0.4.1
     # via unstructured
 email-validator==2.3.0
@@ -102,7 +120,9 @@ exceptiongroup==1.3.0
 executing==2.2.1
     # via stack-data
 fastapi==0.121.2
-    # via zenith-ai (pyproject.toml)
+    # via
+    #   zenith-ai (pyproject.toml)
+    #   mlflow-skinny
 fastapi-cli==0.0.16
     # via fastapi
 fastapi-cloud-cli==0.3.1
@@ -114,6 +134,12 @@ filelock==3.20.0
     #   transformers
 filetype==1.2.0
     # via unstructured
+flask==3.1.2
+    # via
+    #   flask-cors
+    #   mlflow
+flask-cors==6.0.1
+    # via mlflow
 flatbuffers==25.9.23
     # via onnxruntime
 fonttools==4.61.0
@@ -126,10 +152,15 @@ fsspec==2025.10.0
     # via
     #   huggingface-hub
     #   torch
+gitdb==4.0.12
+    # via gitpython
+gitpython==3.1.45
+    # via mlflow-skinny
 google-api-core==2.28.1
     # via google-cloud-vision
 google-auth==2.43.0
     # via
+    #   databricks-sdk
     #   google-api-core
     #   google-cloud-vision
 google-cloud-vision==3.11.0
@@ -138,6 +169,14 @@ googleapis-common-protos==1.72.0
     # via
     #   google-api-core
     #   grpcio-status
+graphene==3.4.3
+    # via mlflow
+graphql-core==3.2.7
+    # via
+    #   graphene
+    #   graphql-relay
+graphql-relay==3.2.0
+    # via graphene
 grpcio==1.76.0
     # via
     #   google-api-core
@@ -146,6 +185,8 @@ grpcio==1.76.0
     #   qdrant-client
 grpcio-status==1.76.0
     # via google-api-core
+gunicorn==23.0.0
+    # via mlflow
 h11==0.16.0
     # via
     #   httpcore
@@ -175,6 +216,8 @@ httpx==0.28.1
     #   unstructured-client
 httpx-sse==0.4.3
     # via langchain-community
+huey==2.5.4
+    # via mlflow
 huggingface-hub==0.36.0
     # via
     #   accelerate
@@ -193,17 +236,24 @@ idna==3.11
     #   httpx
     #   requests
     #   yarl
+importlib-metadata==8.7.0
+    # via
+    #   mlflow-skinny
+    #   opentelemetry-api
 ipykernel==7.1.0
     # via zenith-ai (pyproject.toml)
 ipython==8.37.0
     # via ipykernel
 isort==7.0.0
     # via zenith-ai (pyproject.toml)
+itsdangerous==2.2.0
+    # via flask
 jedi==0.19.2
     # via ipython
 jinja2==3.1.6
     # via
     #   fastapi
+    #   flask
     #   torch
 joblib==1.5.2
     # via
@@ -270,16 +320,24 @@ lxml==6.0.2
     #   python-docx
     #   python-pptx
     #   unstructured
+mako==1.3.10
+    # via alembic
 markdown==3.10
     # via unstructured
 markdown-it-py==4.0.0
     # via rich
 markupsafe==3.0.3
-    # via jinja2
+    # via
+    #   flask
+    #   jinja2
+    #   mako
+    #   werkzeug
 marshmallow==3.26.1
     # via dataclasses-json
 matplotlib==3.10.7
-    # via unstructured-inference
+    # via
+    #   mlflow
+    #   unstructured-inference
 matplotlib-inline==0.2.1
     # via
     #   ipykernel
@@ -288,6 +346,12 @@ mdurl==0.1.2
     # via markdown-it-py
 ml-dtypes==0.5.4
     # via onnx
+mlflow==3.6.0
+    # via zenith-ai (pyproject.toml)
+mlflow-skinny==3.6.0
+    # via mlflow
+mlflow-tracing==3.6.0
+    # via mlflow
 mpmath==1.3.0
     # via sympy
 msoffcrypto-tool==5.4.2
@@ -315,6 +379,7 @@ numpy==2.2.6
     #   langchain-community
     #   matplotlib
     #   ml-dtypes
+    #   mlflow
     #   onnx
     #   onnxruntime
     #   opencv-python
@@ -348,6 +413,22 @@ opencv-python==4.12.0.88
     # via unstructured-inference
 openpyxl==3.1.5
     # via unstructured
+opentelemetry-api==1.38.0
+    # via
+    #   mlflow-skinny
+    #   mlflow-tracing
+    #   opentelemetry-sdk
+    #   opentelemetry-semantic-conventions
+opentelemetry-proto==1.38.0
+    # via
+    #   mlflow-skinny
+    #   mlflow-tracing
+opentelemetry-sdk==1.38.0
+    # via
+    #   mlflow-skinny
+    #   mlflow-tracing
+opentelemetry-semantic-conventions==0.59b0
+    # via opentelemetry-sdk
 orjson==3.11.4
     # via
     #   langgraph-sdk
@@ -358,12 +439,15 @@ packaging==25.0
     # via
     #   accelerate
     #   black
+    #   gunicorn
     #   huggingface-hub
     #   ipykernel
     #   langchain-core
     #   langsmith
     #   marshmallow
     #   matplotlib
+    #   mlflow-skinny
+    #   mlflow-tracing
     #   onnxruntime
     #   pikepdf
     #   transformers
@@ -371,6 +455,7 @@ packaging==25.0
 pandas==2.3.3
     # via
     #   zenith-ai (pyproject.toml)
+    #   mlflow
     #   unstructured
     #   unstructured-inference
 parso==0.8.5
@@ -416,12 +501,16 @@ proto-plus==1.26.1
     #   google-cloud-vision
 protobuf==6.33.1
     # via
+    #   databricks-sdk
     #   google-api-core
     #   google-cloud-vision
     #   googleapis-common-protos
     #   grpcio-status
+    #   mlflow-skinny
+    #   mlflow-tracing
     #   onnx
     #   onnxruntime
+    #   opentelemetry-proto
     #   proto-plus
     #   qdrant-client
 psutil==7.1.3
@@ -435,6 +524,8 @@ ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.3
     # via stack-data
+pyarrow==22.0.0
+    # via mlflow
 pyasn1==0.6.1
     # via
     #   pyasn1-modules
@@ -456,6 +547,8 @@ pydantic==2.12.4
     #   langchain-qdrant
     #   langgraph
     #   langsmith
+    #   mlflow-skinny
+    #   mlflow-tracing
     #   ollama
     #   pydantic-settings
     #   qdrant-client
@@ -482,6 +575,7 @@ pypdfium2==5.1.0
     # via unstructured-inference
 python-dateutil==2.9.0.post0
     # via
+    #   graphene
     #   jupyter-client
     #   matplotlib
     #   pandas
@@ -490,6 +584,7 @@ python-docx==1.2.0
 python-dotenv==1.2.1
     # via
     #   zenith-ai (pyproject.toml)
+    #   mlflow-skinny
     #   pydantic-settings
     #   uvicorn
 python-iso639==2025.11.16
@@ -515,6 +610,7 @@ pyyaml==6.0.3
     #   langchain-classic
     #   langchain-community
     #   langchain-core
+    #   mlflow-skinny
     #   omegaconf
     #   timm
     #   transformers
@@ -536,11 +632,14 @@ regex==2025.11.3
     #   transformers
 requests==2.32.5
     # via
+    #   databricks-sdk
+    #   docker
     #   google-api-core
     #   huggingface-hub
     #   langchain-classic
     #   langchain-community
     #   langsmith
+    #   mlflow-skinny
     #   requests-toolbelt
     #   transformers
     #   unstructured
@@ -566,9 +665,12 @@ safetensors==0.7.0
     #   timm
     #   transformers
 scikit-learn==1.7.2
-    # via zenith-ai (pyproject.toml)
+    # via
+    #   zenith-ai (pyproject.toml)
+    #   mlflow
 scipy==1.15.3
     # via
+    #   mlflow
     #   scikit-learn
     #   unstructured-inference
     #   xgboost
@@ -581,6 +683,8 @@ six==1.17.0
     #   html5lib
     #   langdetect
     #   python-dateutil
+smmap==5.0.2
+    # via gitdb
 sniffio==1.3.1
     # via anyio
 soupsieve==2.8
@@ -588,8 +692,12 @@ soupsieve==2.8
 sqlalchemy==2.0.44
     # via
     #   zenith-ai (pyproject.toml)
+    #   alembic
     #   langchain-classic
     #   langchain-community
+    #   mlflow
+sqlparse==0.5.4
+    # via mlflow-skinny
 stack-data==0.6.3
     # via ipython
 starlette==0.49.3
@@ -612,6 +720,7 @@ tokenizers==0.22.1
     # via transformers
 tomli==2.3.0
     # via
+    #   alembic
     #   black
     #   fastapi-cli
 torch==2.9.1
@@ -651,18 +760,24 @@ typer==0.20.0
 typing-extensions==4.15.0
     # via
     #   aiosignal
+    #   alembic
     #   anyio
     #   beautifulsoup4
     #   black
     #   cryptography
     #   exceptiongroup
     #   fastapi
+    #   graphene
     #   grpcio
     #   huggingface-hub
     #   ipython
     #   langchain-core
+    #   mlflow-skinny
     #   multidict
     #   onnx
+    #   opentelemetry-api
+    #   opentelemetry-sdk
+    #   opentelemetry-semantic-conventions
     #   pydantic
     #   pydantic-core
     #   pypdf
@@ -696,6 +811,7 @@ unstructured-pytesseract==0.3.15
     # via unstructured
 urllib3==2.5.0
     # via
+    #   docker
     #   qdrant-client
     #   requests
     #   sentry-sdk
@@ -704,6 +820,7 @@ uvicorn==0.38.0
     #   fastapi
     #   fastapi-cli
     #   fastapi-cloud-cli
+    #   mlflow-skinny
 uvloop==0.22.1
     # via uvicorn
 watchfiles==1.1.1
@@ -714,6 +831,10 @@ webencodings==0.5.1
     # via html5lib
 websockets==15.0.1
     # via uvicorn
+werkzeug==3.1.4
+    # via
+    #   flask
+    #   flask-cors
 wrapt==2.0.1
     # via
     #   deprecated
@@ -728,5 +849,7 @@ xxhash==3.6.0
     # via langgraph
 yarl==1.22.0
     # via aiohttp
+zipp==3.23.0
+    # via importlib-metadata
 zstandard==0.25.0
     # via langsmith
