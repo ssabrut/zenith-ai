@@ -24,7 +24,12 @@ async def response_generator(query: str, thread_id: str) -> AsyncGenerator[str, 
     except Exception as e:
         yield f"Error processing request: {str(e)}"
 
-@router.post("/chat")
+@router.post(
+    "/chat",
+    response_class=StreamingResponse,
+    summary="Main conversational endpoint",
+    tags=["chat"]
+)
 async def chat_endpoint(request: ChatRequest):
     if not request.query:
         raise HTTPException(status_code=400, detail="Query cannot be empty")
