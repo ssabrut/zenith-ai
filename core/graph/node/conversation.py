@@ -1,4 +1,3 @@
-from langchain_core.runnables import Runnable
 from langchain_core.messages import AIMessage
 from typing import Dict, Any
 
@@ -9,7 +8,7 @@ from core.graph.chain import build_conversational_chain
 class ConversationNode:
     def __init__(self, model_name: str = "openai/gpt-oss-20b") -> None:
         self.llm = make_deepinfra_client(model_name)
-        self.chain = build_conversational_chain(self.llm)
+        self.chain = build_conversational_chain(self.llm.model)
 
     def __call__(self, state: GraphState) -> Dict[str, Any]:
         query = state["query"]
