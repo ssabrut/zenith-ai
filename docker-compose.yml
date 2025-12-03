@@ -40,6 +40,9 @@ services:
       - .env
     volumes:
       - ./frontend:/app/frontend
+    depends_on:
+      api_server:
+        condition: service_healthy
     networks:
       - internal
       - public

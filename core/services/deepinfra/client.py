@@ -1,9 +1,11 @@
 from typing import Literal
-
+from langchain_core.messages import HumanMessage
+from langchain_core.outputs import LLMResult
 from langchain_community.chat_models import ChatDeepInfra
 from langchain_community.embeddings import DeepInfraEmbeddings
 
 from core.config import Settings
+from core.schemas import ServiceStatus
 
 
 class DeepInfraClient:
@@ -34,4 +36,33 @@ class DeepInfraClient:
                 query_instruction="",
                 embed_instruction="",
                 deepinfra_api_token=self.deepinfra_api_token
+            )
+
+    async def health_check(self) -> ServiceStatus:
+        messages = [
+            HumanMessage(
+                content="Translate this sentence from English to French. I love programming."
+            )
+        ]
+
+        try:
+            result: LLMResult = await self.model.agenerate([messages])
+
+            if (
+                result.generations
+                and result.generations[0]
+                and result.generations[0][0].message.content
+            ):
+
+                return ServiceStatus(
+                    status="healthy", message="DeepInfra service is running."
+                )
+            else:
+                return ServiceStatus(
+                    status="unhealthy",
+                    message="DeepInfra service returned an empty or invalid response",
+                )
+        except Exception as e:
+            return ServiceStatus(
+                status="unhealthy", message=f"Connection to DeepInfra failed: {str(e)}"
             )
