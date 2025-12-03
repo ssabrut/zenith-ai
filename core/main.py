@@ -42,4 +42,4 @@ app.add_middleware(
 def root():
     return {"status": 200, "message": "ok"}
 
-app.include_router(chat_router.router)
+app.include_router(chat_router.router, tags=["chatbot"])
