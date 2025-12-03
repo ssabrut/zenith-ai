@@ -2,8 +2,10 @@
 #    uv pip compile --python-version 3.10 pyproject.toml -o requirements.txt
 accelerate==1.12.0
     # via unstructured-inference
-aiofiles==25.1.0
-    # via unstructured-client
+aiofiles==24.1.0
+    # via
+    #   gradio
+    #   unstructured-client
 aiohappyeyeballs==2.6.1
     # via aiohttp
 aiohttp==3.13.2
@@ -20,6 +22,7 @@ antlr4-python3-runtime==4.9.3
     # via omegaconf
 anyio==4.11.0
     # via
+    #   gradio
     #   httpx
     #   starlette
     #   watchfiles
@@ -41,6 +44,8 @@ black==25.11.0
     # via zenith-ai (pyproject.toml)
 blinker==1.9.0
     # via flask
+brotli==1.2.0
+    # via gradio
 cachetools==6.2.2
     # via
     #   google-auth
@@ -122,11 +127,14 @@ executing==2.2.1
 fastapi==0.121.2
     # via
     #   zenith-ai (pyproject.toml)
+    #   gradio
     #   mlflow-skinny
 fastapi-cli==0.0.16
     # via fastapi
 fastapi-cloud-cli==0.3.1
     # via fastapi-cli
+ffmpy==1.0.0
+    # via gradio
 filelock==3.20.0
     # via
     #   huggingface-hub
@@ -150,6 +158,7 @@ frozenlist==1.8.0
     #   aiosignal
 fsspec==2025.10.0
     # via
+    #   gradio-client
     #   huggingface-hub
     #   torch
 gitdb==4.0.12
@@ -169,6 +178,10 @@ googleapis-common-protos==1.72.0
     # via
     #   google-api-core
     #   grpcio-status
+gradio==6.0.2
+    # via zenith-ai (pyproject.toml)
+gradio-client==2.0.1
+    # via gradio
 graphene==3.4.3
     # via mlflow
 graphql-core==3.2.7
@@ -177,6 +190,8 @@ graphql-core==3.2.7
     #   graphql-relay
 graphql-relay==3.2.0
     # via graphene
+groovy==0.1.2
+    # via gradio
 grpcio==1.76.0
     # via
     #   google-api-core
@@ -209,10 +224,13 @@ httpx==0.28.1
     # via
     #   fastapi
     #   fastapi-cloud-cli
+    #   gradio
+    #   gradio-client
     #   langgraph-sdk
     #   langsmith
     #   ollama
     #   qdrant-client
+    #   safehttpx
     #   unstructured-client
 httpx-sse==0.4.3
     # via langchain-community
@@ -221,6 +239,8 @@ huey==2.5.4
 huggingface-hub==0.36.0
     # via
     #   accelerate
+    #   gradio
+    #   gradio-client
     #   timm
     #   tokenizers
     #   transformers
@@ -254,6 +274,7 @@ jinja2==3.1.6
     # via
     #   fastapi
     #   flask
+    #   gradio
     #   torch
 joblib==1.5.2
     # via
@@ -329,6 +350,7 @@ markdown-it-py==4.0.0
 markupsafe==3.0.3
     # via
     #   flask
+    #   gradio
     #   jinja2
     #   mako
     #   werkzeug
@@ -376,6 +398,7 @@ numpy==2.2.6
     # via
     #   accelerate
     #   contourpy
+    #   gradio
     #   langchain-community
     #   matplotlib
     #   ml-dtypes
@@ -431,6 +454,7 @@ opentelemetry-semantic-conventions==0.59b0
     # via opentelemetry-sdk
 orjson==3.11.4
     # via
+    #   gradio
     #   langgraph-sdk
     #   langsmith
 ormsgpack==1.12.0
@@ -439,6 +463,8 @@ packaging==25.0
     # via
     #   accelerate
     #   black
+    #   gradio
+    #   gradio-client
     #   gunicorn
     #   huggingface-hub
     #   ipykernel
@@ -455,6 +481,7 @@ packaging==25.0
 pandas==2.3.3
     # via
     #   zenith-ai (pyproject.toml)
+    #   gradio
     #   mlflow
     #   unstructured
     #   unstructured-inference
@@ -476,6 +503,7 @@ pikepdf==10.0.2
     # via unstructured
 pillow==12.0.0
     # via
+    #   gradio
     #   matplotlib
     #   pdf2image
     #   pi-heif
@@ -541,6 +569,7 @@ pydantic==2.12.4
     #   zenith-ai (pyproject.toml)
     #   fastapi
     #   fastapi-cloud-cli
+    #   gradio
     #   langchain
     #   langchain-classic
     #   langchain-core
@@ -559,6 +588,8 @@ pydantic-settings==2.12.0
     # via
     #   zenith-ai (pyproject.toml)
     #   langchain-community
+pydub==0.25.1
+    # via gradio
 pygments==2.19.2
     # via
     #   ipython
@@ -594,6 +625,7 @@ python-magic==0.4.27
 python-multipart==0.0.20
     # via
     #   fastapi
+    #   gradio
     #   unstructured-inference
 python-oxmsg==0.0.2
     # via unstructured
@@ -606,6 +638,7 @@ pytz==2025.2
 pyyaml==6.0.3
     # via
     #   accelerate
+    #   gradio
     #   huggingface-hub
     #   langchain-classic
     #   langchain-community
@@ -659,6 +692,8 @@ rignore==0.7.6
     # via fastapi-cloud-cli
 rsa==4.9.1
     # via google-auth
+safehttpx==0.1.7
+    # via gradio
 safetensors==0.7.0
     # via
     #   accelerate
@@ -674,6 +709,8 @@ scipy==1.15.3
     #   scikit-learn
     #   unstructured-inference
     #   xgboost
+semantic-version==2.10.0
+    # via gradio
 sentry-sdk==2.44.0
     # via fastapi-cloud-cli
 shellingham==1.5.4
@@ -701,7 +738,9 @@ sqlparse==0.5.4
 stack-data==0.6.3
     # via ipython
 starlette==0.49.3
-    # via fastapi
+    # via
+    #   fastapi
+    #   gradio
 sympy==1.14.0
     # via
     #   onnxruntime
@@ -723,6 +762,8 @@ tomli==2.3.0
     #   alembic
     #   black
     #   fastapi-cli
+tomlkit==0.13.3
+    # via gradio
 torch==2.9.1
     # via
     #   accelerate
@@ -757,6 +798,7 @@ typer==0.20.0
     # via
     #   fastapi-cli
     #   fastapi-cloud-cli
+    #   gradio
 typing-extensions==4.15.0
     # via
     #   aiosignal
@@ -767,6 +809,8 @@ typing-extensions==4.15.0
     #   cryptography
     #   exceptiongroup
     #   fastapi
+    #   gradio
+    #   gradio-client
     #   graphene
     #   grpcio
     #   huggingface-hub
@@ -820,6 +864,7 @@ uvicorn==0.38.0
     #   fastapi
     #   fastapi-cli
     #   fastapi-cloud-cli
+    #   gradio
     #   mlflow-skinny
 uvloop==0.22.1
     # via uvicorn

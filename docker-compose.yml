@@ -1,4 +1,25 @@
 services:
+  api_server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: api_server
+    image: zenith-image:latest
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    networks:
+      - public
+      - internal
+    depends_on:
+      qdrant:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+      mlflow:
+        condition: service_started
+
   qdrant:
     image: qdrant/qdrant:latest
     container_name: zenith_qdrant
