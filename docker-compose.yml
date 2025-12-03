@@ -1,3 +1,6 @@
+include:
+  - langsmith.docker-compose.yaml
+
 services:
   api_server:
     build:
