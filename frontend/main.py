@@ -1,74 +1,67 @@
 import uuid
 import gradio as gr
-import asyncio
-from typing import List, Tuple
+import requests
+import os
+import json
+from typing import List
 
-# --- IMPORT YOUR BACKEND ---
-# Adjust the import path based on your folder structure
-# We assume 'app' is the compiled StateGraph from core/graph/workflow.py
-try:
-    from core.graph.workflow import app
-except ImportError:
-    # Fallback for testing if backend isn't ready
-    print("⚠️ Backend not found. Using dummy mock.")
-    app = None
+# Configuration
+BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
+CHAT_ENDPOINT = f"{BACKEND_URL}/api/v1/chat/"
 
-async def interact_with_agent(message: str, history: List[List], thread_id: str):
+def interact_with_agent(message: str, history: List[dict], thread_id: str):
     """
-    Core logic to talk to LangGraph and stream results to Gradio.
+    Sends the user message to the FastAPI backend via POST and streams the response.
     """
     if not message:
         yield history, ""
         return
 
-    # 1. Update history with User Message and a placeholder for Bot
-    # history format: [[user_msg, bot_msg], ...]
-    history.append([message, "⏳ *Thinking...*"])
-    yield history, "" # Update UI immediately
+    # 1. Update history with User Message and a placeholder
+    history.append({"role": "user", "content": message})
+    history.append({"role": "assistant", "content": "⏳ *Thinking...*"})
+    yield history, ""
 
-    # 2. Config for LangGraph (Memory)
-    config = {"configurable": {"thread_id": thread_id}}
-    inputs = {"question": message}
+    # 2. Prepare Payload
+    payload = {
+        "query": message,
+        "thread_id": thread_id
+    }
 
-    if app is None:
-        # Mock response if backend is missing
-        await asyncio.sleep(1)
-        history[-1][1] = "Backend is not connected. Please check imports."
-        yield history, ""
-        return
-
-    # 3. Stream from LangGraph
-    # We use astream to get updates node-by-node
     try:
-        async for event in app.astream(inputs, config=config):
-            for node_name, state_update in event.items():
-                
-                # OPTIONAL: Show status updates based on active node
-                if node_name == "router":
-                    history[-1][1] = "🔄 *Analyzing your request...*"
+        # 3. Make the POST request with stream=True
+        with requests.post(CHAT_ENDPOINT, json=payload, stream=True) as response:
+            print("Response:", response)
+            
+            # Check for HTTP errors (4xx, 5xx)
+            if response.status_code != 200:
+                error_detail = response.text
+                try:
+                    error_json = response.json()
+                    error_detail = error_json.get('detail', error_detail)
+                except:
+                    pass
+                raise Exception(f"Server Error {response.status_code}: {error_detail}")
+
+            # 4. Process the Stream
+            partial_response = ""
+            
+            for chunk in response.iter_content(chunk_size=1024, decode_unicode=True):
+                if chunk:
+                    partial_response += chunk
+                    
+                    # Update the latest bot message in history
+                    history[-1]["content"] = partial_response
+                    
+                    # Yield to Gradio to update UI
                     yield history, ""
-                elif node_name == "rag":
-                    history[-1][1] = "📚 *Searching knowledge base...*"
-                    yield history, ""
-                elif node_name == "booking":
-                    history[-1][1] = "📅 *Checking appointment system...*"
-                    yield history, ""
-                
-                # FINAL ANSWER: When 'generate' node finishes
-                elif node_name == "generate":
-                    # Extract the AIMessage content
-                    # State structure: {'messages': [AIMessage(content='...'), ...]}
-                    messages = state_update.get("messages", [])
-                    if messages:
-                        last_message = messages[-1]
-                        final_text = last_message.content
-                        
-                        # Update the placeholder with the real answer
-                        history[-1][1] = final_text
-                        yield history, ""
-                        
+
+    except requests.exceptions.ConnectionError:
+        history[-1]["content"] = f"❌ Connection Error: Could not reach backend at {CHAT_ENDPOINT}. Is the server running?"
+        yield history, ""
+        
     except Exception as e:
-        history[-1][1] = f"❌ Error: {str(e)}"
+        history[-1]["content"] = f"❌ Error: {str(e)}"
         yield history, ""
 
 def init_session():
@@ -82,57 +75,40 @@ def clear_data():
     return [], "", str(uuid.uuid4())
 
 # --- GRADIO UI LAYOUT ---
-with gr.Blocks(title="ERHA/Dermies AI Agent", theme=gr.themes.Soft()) as demo:
+with gr.Blocks(title="ERHA/Dermies AI Agent") as demo:
     
-    # Store the unique thread_id in a hidden state component
+    # Store the unique thread_id
     session_state = gr.State(value=init_session)
     
     gr.Markdown("# 🏥 ERHA/Dermies Smart Assistant")
     gr.Markdown("Ask about treatments, prices, or manage your appointments.")
     
+    # Use type="messages" for dictionary format
     chatbot = gr.Chatbot(
-        height=500,
-        avatar_images=(None, "🤖"), # Add user icon if desired
-        bubble_full_width=False,
-        show_copy_button=True,
-        type="messages" # Newer Gradio versions prefer 'messages' format, but 'tuples' is safer for older
+        max_height=500,
+        avatar_images=(None, "🤖")
     )
-    # Note: If you get a 'format' error, remove type="messages" to default to tuples.
-    # The code below assumes TUPLES format [[user, bot]] which works on almost all versions.
-    chatbot.type = "tuples" 
 
     with gr.Row():
         msg = gr.Textbox(
-            placeholder="Contoh: 'Berapa harga peeling wajah?' atau 'Saya mau booking konsultasi'",
+            placeholder="Contoh: 'Berapa harga peeling wajah?'",
             show_label=False,
             scale=4
         )
-        submit_btn = gr.Button("Send", scale=1, variant="primary")
 
     clear_btn = gr.Button("Clear Conversation", variant="secondary")
 
     # --- EVENT WIRING ---
-    
-    # 1. User sends message (Enter key or Button click)
-    # We pass: [message, chatbot history, session_id]
-    # We output: [chatbot history, message (cleared)]
     msg.submit(
         interact_with_agent, 
         inputs=[msg, chatbot, session_state], 
         outputs=[chatbot, msg]
     )
-    
-    submit_btn.click(
-        interact_with_agent, 
-        inputs=[msg, chatbot, session_state], 
-        outputs=[chatbot, msg]
-    )
 
-    # 2. Clear button resets history and creates NEW thread_id
     clear_btn.click(
         clear_data, 
         outputs=[chatbot, msg, session_state]
     )
 
 if __name__ == "__main__":
-    demo.launch(server_name="0.0.0.0", server_port=7860, share=False)
+    demo.launch(server_name="0.0.0.0", server_port=7860, share=False, theme=gr.themes.Soft())

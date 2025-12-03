@@ -24,6 +24,8 @@ anyio==4.11.0
     # via
     #   gradio
     #   httpx
+    #   mcp
+    #   sse-starlette
     #   starlette
     #   watchfiles
 appnope==0.1.4
@@ -35,7 +37,10 @@ async-timeout==4.0.3
     #   aiohttp
     #   langchain-classic
 attrs==25.4.0
-    # via aiohttp
+    # via
+    #   aiohttp
+    #   jsonschema
+    #   referencing
 backoff==2.2.1
     # via unstructured
 beautifulsoup4==4.14.2
@@ -87,6 +92,7 @@ cryptography==46.0.3
     #   mlflow
     #   msoffcrypto-tool
     #   pdfminer-six
+    #   pyjwt
     #   unstructured-client
 cycler==0.12.1
     # via matplotlib
@@ -228,12 +234,15 @@ httpx==0.28.1
     #   gradio-client
     #   langgraph-sdk
     #   langsmith
+    #   mcp
     #   ollama
     #   qdrant-client
     #   safehttpx
     #   unstructured-client
 httpx-sse==0.4.3
-    # via langchain-community
+    # via
+    #   langchain-community
+    #   mcp
 huey==2.5.4
     # via mlflow
 huggingface-hub==0.36.0
@@ -284,6 +293,10 @@ jsonpatch==1.33
     # via langchain-core
 jsonpointer==3.0.0
     # via jsonpatch
+jsonschema==4.25.1
+    # via mcp
+jsonschema-specifications==2025.9.1
+    # via jsonschema
 jupyter-client==8.6.3
     # via ipykernel
 jupyter-core==5.9.1
@@ -335,6 +348,8 @@ langsmith==0.4.43
     #   langchain-classic
     #   langchain-community
     #   langchain-core
+loguru==0.7.3
+    # via zenith-ai (pyproject.toml)
 lxml==6.0.2
     # via
     #   pikepdf
@@ -364,6 +379,8 @@ matplotlib-inline==0.2.1
     # via
     #   ipykernel
     #   ipython
+mcp==1.23.1
+    # via zenith-ai (pyproject.toml)
 mdurl==0.1.2
     # via markdown-it-py
 ml-dtypes==0.5.4
@@ -576,6 +593,7 @@ pydantic==2.12.4
     #   langchain-qdrant
     #   langgraph
     #   langsmith
+    #   mcp
     #   mlflow-skinny
     #   mlflow-tracing
     #   ollama
@@ -588,12 +606,15 @@ pydantic-settings==2.12.0
     # via
     #   zenith-ai (pyproject.toml)
     #   langchain-community
+    #   mcp
 pydub==0.25.1
     # via gradio
 pygments==2.19.2
     # via
     #   ipython
     #   rich
+pyjwt==2.10.1
+    # via mcp
 pypandoc==1.16.2
     # via unstructured
 pyparsing==3.2.5
@@ -615,6 +636,7 @@ python-docx==1.2.0
 python-dotenv==1.2.1
     # via
     #   zenith-ai (pyproject.toml)
+    #   mcp
     #   mlflow-skinny
     #   pydantic-settings
     #   uvicorn
@@ -626,6 +648,7 @@ python-multipart==0.0.20
     # via
     #   fastapi
     #   gradio
+    #   mcp
     #   unstructured-inference
 python-oxmsg==0.0.2
     # via unstructured
@@ -659,12 +682,17 @@ rapidfuzz==3.14.3
     #   zenith-ai (pyproject.toml)
     #   unstructured
     #   unstructured-inference
+referencing==0.37.0
+    # via
+    #   jsonschema
+    #   jsonschema-specifications
 regex==2025.11.3
     # via
     #   nltk
     #   transformers
 requests==2.32.5
     # via
+    #   zenith-ai (pyproject.toml)
     #   databricks-sdk
     #   docker
     #   google-api-core
@@ -690,6 +718,10 @@ rich-toolkit==0.15.1
     #   fastapi-cloud-cli
 rignore==0.7.6
     # via fastapi-cloud-cli
+rpds-py==0.30.0
+    # via
+    #   jsonschema
+    #   referencing
 rsa==4.9.1
     # via google-auth
 safehttpx==0.1.7
@@ -735,12 +767,15 @@ sqlalchemy==2.0.44
     #   mlflow
 sqlparse==0.5.4
     # via mlflow-skinny
+sse-starlette==3.0.3
+    # via mcp
 stack-data==0.6.3
     # via ipython
 starlette==0.49.3
     # via
     #   fastapi
     #   gradio
+    #   mcp
 sympy==1.14.0
     # via
     #   onnxruntime
@@ -799,6 +834,7 @@ typer==0.20.0
     #   fastapi-cli
     #   fastapi-cloud-cli
     #   gradio
+    #   mcp
 typing-extensions==4.15.0
     # via
     #   aiosignal
@@ -816,6 +852,7 @@ typing-extensions==4.15.0
     #   huggingface-hub
     #   ipython
     #   langchain-core
+    #   mcp
     #   mlflow-skinny
     #   multidict
     #   onnx
@@ -828,6 +865,7 @@ typing-extensions==4.15.0
     #   python-docx
     #   python-oxmsg
     #   python-pptx
+    #   referencing
     #   rich-toolkit
     #   sqlalchemy
     #   starlette
@@ -841,6 +879,7 @@ typing-inspect==0.9.0
     # via dataclasses-json
 typing-inspection==0.4.2
     # via
+    #   mcp
     #   pydantic
     #   pydantic-settings
 tzdata==2025.2
@@ -865,6 +904,7 @@ uvicorn==0.38.0
     #   fastapi-cli
     #   fastapi-cloud-cli
     #   gradio
+    #   mcp
     #   mlflow-skinny
 uvloop==0.22.1
     # via uvicorn

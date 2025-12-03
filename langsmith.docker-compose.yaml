@@ -202,7 +202,7 @@ services:
     volumes:
       - langchain-db-data:/var/lib/postgresql/data
     ports:
-      - 5435:5432
+      - 5436:5432
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres"]
       interval: 2s
