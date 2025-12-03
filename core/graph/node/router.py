@@ -23,7 +23,7 @@ class RouterNode:
 
         self.prompt = ChatPromptTemplate.from_messages([
             ("system", system),
-            ("human", "{question}"),
+            ("human", "{query}"),
         ])
         
         self.chain = self.prompt | self.structured_llm

@@ -18,19 +18,19 @@ def build_graph():
     def route_decision(state: GraphState):
         step = state["next_step"]
 
-        if step == "vectorstore":
-            return RAG
-        elif step == "booking_tool":
-            return BOOKING
-        else:
-            return GENERATE
+        # if step == "vectorstore":
+        #     return RAG
+        # elif step == "booking_tool":
+        #     return BOOKING
+        # else:
+        return GENERATE
 
     workflow.add_conditional_edges(
         ROUTER,
         route_decision,
         {
-            RAG: RAG,
-            BOOKING: BOOKING,
+            # RAG: RAG,
+            # BOOKING: BOOKING,
             GENERATE: GENERATE
         }
     )

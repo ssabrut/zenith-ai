@@ -7,6 +7,7 @@ from pydantic import ValidationError
 
 from core.dependencies import load_settings
 from core.config import Settings
+from core.routers import chat as chat_router
 
 try:
     settings: Settings = load_settings()
@@ -40,3 +41,5 @@ app.add_middleware(
 @app.get("/")
 def root():
     return {"status": 200, "message": "ok"}
+
+app.include_router(chat_router.router)
