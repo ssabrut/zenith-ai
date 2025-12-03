@@ -1,0 +1,42 @@
+import sys
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from typing import AsyncIterator
+from pydantic import ValidationError
+
+from core.dependencies import load_settings
+from core.config import Settings
+
+try:
+    settings: Settings = load_settings()
+except ValidationError as e:
+    print(f"FATAL: Application configuration is invalid.\n{e}", file=sys.stderr)
+    sys.exit(1)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+    app.state.settings = load_settings()
+    yield
+
+app = FastAPI(
+    title=settings.service_name,
+    description="A FastAPI service for Zenith agent",
+    version=settings.app_version,
+    root_path="/api/v1",
+    lifespan=lifespan
+)
+
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.get("/")
+def root():
+    return {"status": 200, "message": "ok"}
