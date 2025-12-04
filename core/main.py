@@ -47,4 +47,4 @@ def root():
 app.include_router(chat_router.router)
 app.include_router(health_router.router)
 
-app.mount("/mcp", server.mcp.http_app())
+app.mount("/tools", server.mcp.http_app(path="/mcp"))
