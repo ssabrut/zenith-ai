@@ -13,7 +13,7 @@ async def response_generator(query: str, thread_id: str) -> AsyncGenerator[str, 
     config = {"configurable": {"thread_id": thread_id}}
 
     try:
-        async for event in app.astream(initial_state, config=config):
+        async for event in app.astream(initial_state, config=config, version="v1"):
             for node_name, state_update in event.items():
                 if node_name == GENERATE:
                     messages = state_update.get("messages", [])
