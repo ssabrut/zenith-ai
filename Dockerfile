@@ -41,6 +41,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq5 \
     jq \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Create a non-root user for security

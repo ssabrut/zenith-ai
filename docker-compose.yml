@@ -1,5 +1,5 @@
-include:
-  - langsmith.docker-compose.yaml
+# include:
+#   - langsmith.docker-compose.yaml
 
 services:
   api_server:
@@ -78,12 +78,16 @@ services:
     restart: always
     env_file:
       - .env
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
     ports:
-      - "5431:5432"
+      - "5432:5432"
     volumes:
       - ./data/postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -96,8 +100,8 @@ services:
     restart: unless-stopped
     container_name: zenith_s3
     ports:
-      - "9092:9000"
-      - "9091:9001"
+      - "9002:9000"
+      - "9001:9001"
     env_file:
       - .env
     environment:
