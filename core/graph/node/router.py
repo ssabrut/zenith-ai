@@ -6,9 +6,9 @@ from core.services.deepinfra.factory import make_deepinfra_client
 from core.graph.state import GraphState
 
 class RouteQuery(BaseModel):
-    datasource: Literal["inquiry_agent", "booking_agent", "general_chat"] = Field(
+    datasource: Literal["vectorstore", "booking_tool", "general_chat"] = Field(
         ...,
-        description="Pilih rute: 'inquiry_agent' untuk info/harga/medis, 'booking_agent' untuk janji temu, atau 'general_chat' untuk obrolan ringan."
+        description="Pilih rute: 'vectorstore' untuk info/harga/medis, 'booking_tool' untuk janji temu, atau 'general_chat' untuk obrolan ringan."
     )
 
 class RouterNode:
@@ -19,13 +19,13 @@ class RouterNode:
         system = """Anda adalah router ahli untuk klinik dermatologi. Tugas Anda mengarahkan pertanyaan pengguna ke agen yang tepat.
 
         ATURAN ROUTING:
-        1. **inquiry_agent**: Pilih ini jika pengguna bertanya tentang:
+        1. **vectorstore**: Pilih ini jika pengguna bertanya tentang:
            - Harga, biaya, atau paket perawatan.
            - Jenis facial, laser, atau produk skincare.
            - Masalah kulit (jerawat, flek, kusam).
            - Lokasi klinik atau jam operasional.
 
-        2. **booking_agent**: Pilih ini jika pengguna ingin:
+        2. **booking_tool**: Pilih ini jika pengguna ingin:
            - Membuat janji temu (booking/reservasi).
            - Mengubah jadwal (reschedule) atau membatalkan janji.
            - Mengecek jadwal dokter.

@@ -5,12 +5,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import AsyncIterator
 from pydantic import ValidationError
 
+import core.globals as global_state
 from core.dependencies import load_settings
 from core.config import Settings
 from core.services.mcp import MCPClient
 from core.routers import chat as chat_router
 from core.routers import health as health_router
-from core.globals import mcp_tools
+from core.graph.workflow import build_graph
 
 try:
     settings: Settings = load_settings()
@@ -27,15 +28,19 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
     try:
         fetched_tools = await mcp_client.get_tools()
-        mcp_tools.extend(fetched_tools)
-        print(f"✅ Loaded {len(mcp_tools)} MCP tools into the graph.")
+        global_state.mcp_tools.extend(fetched_tools)
+        print(f"✅ Loaded {len(global_state.mcp_tools)} MCP tools into the graph.")
+
+        global_state.graph_app = build_graph()
+        print("✅ LangGraph built successfully with MCP tools.")
     except Exception as e:
         print(f"⚠️ Failed to load MCP tools: {e}")
 
     yield
 
     await mcp_client.disconnet()
-    mcp_tools.clear()
+    global_state.mcp_tools.clear()
+    graph_app = None
 
 app = FastAPI(
     title=settings.service_name,
