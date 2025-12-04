@@ -7,11 +7,13 @@ from pydantic import ValidationError
 
 from core.dependencies import load_settings
 from core.config import Settings
+from core.services.mcp import MCPClient
 from core.routers import chat as chat_router
 from core.routers import health as health_router
 
 try:
     settings: Settings = load_settings()
+    MCP_SERVER_URL = "http://localhost:8001/sse"
 except ValidationError as e:
     print(f"FATAL: Application configuration is invalid.\n{e}", file=sys.stderr)
     sys.exit(1)
@@ -19,7 +21,12 @@ except ValidationError as e:
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     app.state.settings = load_settings()
+    mcp_client = MCPClient(MCP_SERVER_URL)
+    await mcp_client.connect()
+
     yield
+
+    await mcp_client.disconnet()
 
 app = FastAPI(
     title=settings.service_name,

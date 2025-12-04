@@ -5,7 +5,7 @@ from pydantic import create_model
 from typing import Any
 from langchain_core.tools import StructuredTool
 
-class MCPClientManager:
+class MCPClient:
     def __init__(self, url: str):
         self.url = url
         self.session: ClientSession | None = None
