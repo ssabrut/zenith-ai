@@ -16,6 +16,7 @@ class DeepInfraClient:
         settings: Settings,
         model: Literal["openai/gpt-oss-20b", "Qwen/Qwen3-Embedding-8B"],
         temperature: float = 0,
+        max_tokens: int = 2048
     ) -> None:
         if not isinstance(settings, Settings):
             raise TypeError(
@@ -29,6 +30,7 @@ class DeepInfraClient:
                 model=model,
                 temperature=temperature,
                 deepinfra_api_token=self.deepinfra_api_token,
+                max_tokens=max_tokens
             )
         elif model == "Qwen/Qwen3-Embedding-8B":
             self.model = DeepInfraEmbeddings(

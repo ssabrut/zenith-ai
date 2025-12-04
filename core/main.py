@@ -10,6 +10,7 @@ from core.config import Settings
 from core.services.mcp import MCPClient
 from core.routers import chat as chat_router
 from core.routers import health as health_router
+from core.globals import mcp_tools
 
 try:
     settings: Settings = load_settings()
@@ -24,9 +25,17 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     mcp_client = MCPClient(MCP_SERVER_URL)
     await mcp_client.connect()
 
+    try:
+        fetched_tools = await mcp_client.get_tools()
+        mcp_tools.extend(fetched_tools)
+        print(f"✅ Loaded {len(mcp_tools)} MCP tools into the graph.")
+    except Exception as e:
+        print(f"⚠️ Failed to load MCP tools: {e}")
+
     yield
 
     await mcp_client.disconnet()
+    mcp_tools.clear()
 
 app = FastAPI(
     title=settings.service_name,

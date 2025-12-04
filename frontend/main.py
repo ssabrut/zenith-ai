@@ -31,7 +31,6 @@ def interact_with_agent(message: str, history: List[dict], thread_id: str):
     try:
         # 3. Make the POST request with stream=True
         with requests.post(CHAT_ENDPOINT, json=payload, stream=True) as response:
-            print("Response:", response)
             
             # Check for HTTP errors (4xx, 5xx)
             if response.status_code != 200:
@@ -46,7 +45,7 @@ def interact_with_agent(message: str, history: List[dict], thread_id: str):
             # 4. Process the Stream
             partial_response = ""
             
-            for chunk in response.iter_content(chunk_size=1024, decode_unicode=True):
+            for chunk in response.iter_content(decode_unicode=True):
                 if chunk:
                     partial_response += chunk
                     

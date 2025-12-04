@@ -31,13 +31,28 @@ deepinfra_embedding = DeepInfraEmbeddings(
 
 @mcp.tool()
 async def search_knowledge_base(query: str) -> Union[List[Dict], str]:
+    """
+    Searches the internal knowledge base for relevant documents based on a user's query.
+
+    This tool performs a semantic vector search using Qdrant and re-ranks the results
+    using an XGBoost model to provide the most relevant answers. Use this tool whenever
+    the user asks for information, prices, treatments, or specific details contained
+    in the documentation.
+
+    Args:
+        query (str): The search query or question from the user.
+
+    Returns:
+        Union[List[Dict], str]: A list of the top 5 most relevant document records, 
+                                or a message indicating no information was found.
+    """
     print(f"🔎 MCP Search Query: {query}")
 
     query_vector = deepinfra_embedding.embed_query(query)
 
     hits = qdrant_client.query_points(
         collection_name=QDRANT_COLLECTION,
-        limit=20,
+        limit=40,
         query=query_vector,
     )
 
