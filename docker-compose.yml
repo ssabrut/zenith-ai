@@ -1,6 +1,3 @@
-# include:
-#   - langsmith.docker-compose.yaml
-
 services:
   api_server:
     build:
@@ -13,8 +10,7 @@ services:
     env_file:
       - .env
     networks:
-      - public
-      - internal
+      - zenith_shared_network
     depends_on:
       qdrant:
         condition: service_healthy
@@ -44,8 +40,7 @@ services:
       api_server:
         condition: service_healthy
     networks:
-      - internal
-      - public
+      - zenith_shared_network
 
   qdrant:
     image: qdrant/qdrant:latest
@@ -67,8 +62,7 @@ services:
       retries: 5
       start_period: 40s
     networks:
-      - internal
-      - public
+      - zenith_shared_network
     env_file:
       - .env
 
@@ -92,8 +86,7 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - internal
-      - public
+      - zenith_shared_network
 
   s3:
     image: minio/minio:latest
@@ -109,8 +102,7 @@ services:
       - MINIO_ROOT_PASSWORD=${AWS_SECRET_ACCESS_KEY}
     command: server /data --console-address ":9001"
     networks:
-      - internal
-      - public
+      - zenith_shared_network
     volumes:
       - minio_new_volume:/data
     healthcheck:
@@ -128,7 +120,7 @@ services:
     container_name: mc_setup
     restart: "no"
     networks:
-      - internal
+      - zenith_shared_network
     env_file:
       - .env
     depends_on:
@@ -155,8 +147,7 @@ services:
     ports:
       - "5050:5000"
     networks:
-      - public
-      - internal
+      - zenith_shared_network
     depends_on:
       mlflow_db:
         condition: service_healthy
@@ -190,12 +181,10 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - internal
+      - zenith_shared_network
 
 networks:
-  internal:
-    driver: bridge
-  public:
+  zenith_shared_network:
     driver: bridge
 
 volumes:

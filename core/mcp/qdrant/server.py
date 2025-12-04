@@ -7,7 +7,7 @@ import mlflow.xgboost
 import pandas as pd
 from typing import List, Dict, Union
 from rapidfuzz import fuzz
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
 from qdrant_client import QdrantClient
 from langchain_community.embeddings import DeepInfraEmbeddings
 
@@ -127,6 +127,3 @@ async def search_knowledge_base(query: str) -> Union[List[Dict], str]:
     top_results = df_candidates.head(5)
     top_results = top_results.to_dict(orient="records")
     return top_results
-
-if __name__ == "__main__":
-    mcp.run(transport="sse")
