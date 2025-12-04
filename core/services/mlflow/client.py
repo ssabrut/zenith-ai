@@ -1,7 +1,6 @@
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Tuple
 
 import mlflow
-import mlflow.sklearn
 import mlflow.tracking
 from httpx import AsyncClient, ConnectError, RequestError, TimeoutException
 from mlflow.exceptions import MlflowException
@@ -47,8 +46,8 @@ class MLflowClient:
                 "Argument 'settings' must be an instance of the Settings class"
             )
 
-        self.base_url = settings.mlflow_uri
-        self.s3_endpoint_url = settings.s3_uri
+        self.base_url = settings.MLFLOW_TRACKING_URI
+        self.s3_endpoint_url = settings.MLFLOW_S3_ENDPOINT_URL
         self.model_cache = {}
 
         try:
@@ -109,65 +108,3 @@ class MLflowClient:
             mlflow.tracking.MlflowClient: The MLflow client.
         """
         return self._client
-
-    def get_model_version(self, name: str, stage: str) -> Optional[str]:
-        """
-        Retrieves the latest model version string for a given name and stage.
-
-        Args:
-            name (str): The registered model name.
-            stage (str): The model stage (e.g., 'Production', 'Staging').
-
-        Returns:
-            Optional[str]: The version string (e.g., "1") if found,
-                           otherwise None.
-
-        Raises:
-            RuntimeError: If an error occurs while communicating with the
-                          MLflow server.
-        """
-        try:
-            versions = self.client.get_latest_versions(name=name, stages=[stage])
-            if not versions:
-                return None  # Model or stage not found
-            return versions[0].version
-        except MlflowException as e:
-            raise RuntimeError(
-                f"Error getting model version for '{name}' stage '{stage}': {e}"
-            ) from e
-
-    def load_model(self, name: str, version: str) -> Tuple[Any, str]:
-        """
-        Loads a model from the MLflow registry, using an in-memory cache.
-
-        Args:
-            name (str): The registered model name.
-            version (str): The model version string.
-
-        Returns:
-            Tuple[Any, str]: A tuple containing the loaded model object
-                             and its version string.
-
-        Raises:
-            RuntimeError: If the model fails to load from the MLflow
-                          registry (e.g., model not found, artifact error,
-                          unpickling error).
-        """
-        cache_key: str = f"{name}:{version}"
-
-        if cache_key in self.model_cache:
-            return self.model_cache[cache_key]
-
-        try:
-            model_uri: str = f"models:/{name}/{version}"
-            model: Any = mlflow.sklearn.load_model(model_uri=model_uri)
-
-            self.model_cache[cache_key] = (model, version)
-            return model, version
-
-        except (MlflowException, Exception) as e:
-            # Catch MlflowException and any other potential error
-            # (e.g., unpickling, dependency errors)
-            raise RuntimeError(
-                f"Model loading failed for '{cache_key}'. Error: {e}"
-            ) from e

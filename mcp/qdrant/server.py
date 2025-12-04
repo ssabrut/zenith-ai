@@ -1,7 +1,87 @@
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+import mlflow
 import pandas as pd
-from rapidfuzz import fuzz
+from fastmcp import FastMCP
 from loguru import logger
-from typing import Set
+from qdrant_client import QdrantClient
+from rapidfuzz import fuzz
+from typing import Union, List, Dict, Set
+from langchain_community.embeddings import DeepInfraEmbeddings
+
+mcp = FastMCP("Qdrant-tools-server")
+
+QDRANT_COLLECTION = os.getenv("QDRANT_COLLECTION")
+MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI")
+QDRANT_HOST = os.getenv("QDRANT_HOST")
+QDRANT_PORT = os.getenv("QDRANT_PORT")
+QDRANT_COLLECTION = os.getenv("QDRANT_COLLECTION")
+DEEPINFRA_API_TOKEN = os.getenv("DEEPINFRA_API_TOKEN")
+
+mlflow_client = mlflow.tracking.MlflowClient(tracking_uri=MLFLOW_TRACKING_URI, registry_uri=MLFLOW_TRACKING_URI)
+qdrant_client = QdrantClient(host=QDRANT_HOST, port=QDRANT_HOST)
+deepinfra_embedding = DeepInfraEmbeddings(
+    model_id="Qwen/Qwen3-Embedding-8B",
+    query_instruction="",
+    embed_instruction="",
+    deepinfra_api_token=DEEPINFRA_API_TOKEN
+)
+
+@mcp.tool()
+async def search_knowledge_base(query: str) -> Union[List[Dict], str]:
+    print(f"🔎 MCP Search Query: {query}")
+
+    query_vector = deepinfra_embedding.embed_query(query)
+
+    hits = qdrant_client.query_points(
+        collection_name=QDRANT_COLLECTION,
+        limit=20,
+        query=query_vector,
+    )
+
+    if not hits.points:
+        return "No information found in the knowledge base"
+
+    reranker = get_reranker()
+
+    data_candidates = []
+    for point in hits.points:
+        payload = point.payload
+        data_candidates.append({
+            "query_text": query,
+            "doc_id": point.id,
+            "full_text": payload.get('full_text', ''),
+            "h1": payload.get('h1', ''),
+            "qdrant_score": point.score,
+            "payload": payload
+        })
+
+    df_candidates = pd.DataFrame(data_candidates)
+    if reranker:
+        extractor = RerankerFeatureExtractor()
+        X = extractor.transform(df_candidates)
+        df_candidates["score"] = reranker.predict(X)
+        df_candidates = df_candidates.sort_values(by='score', ascending=False)
+
+    top_results = df_candidates.head(5)
+    top_results = top_results.to_dict(orient="records")
+    return top_results
+
+def get_reranker():
+    global reranker_model
+    if not reranker_model:
+        print("Loading XGBoost Reranker from MLflow")
+        try:
+            mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
+            versions = mlflow_client.get_latest_versions("XGBoostReranker", stages=["Staging"])
+            latest_version = versions[0].version
+            model_uri = f"models:/XGBoostReranker/{latest_version}"
+            reranker_model = mlflow.xgboost.load_model(model_uri)
+        except Exception as e:
+            print(f"⚠️ Could not load Reranker: {e}. Falling back to raw vector search.")
+        return reranker_model
 
 class RerankerFeatureExtractor:
     """
@@ -143,3 +223,6 @@ class RerankerFeatureExtractor:
         except Exception as e:
             logger.exception("Unexpected error during feature extraction transformation.")
             raise e
+
+if __name__ == "__main__":
+    mcp.run(transport="sse", host="0.0.0.0", port=8001)

@@ -1,13 +1,11 @@
 from loguru import logger
 
-from typing import List, Any
 from httpx import ConnectError, RequestError, TimeoutException, AsyncClient
 from qdrant_client import QdrantClient as QdrantClientRemote
 from qdrant_client.http.models import VectorParams, Distance
 
 from core.config import Settings
 from core.schemas import ServiceStatus
-from core.services.deepinfra.factory import make_deepinfra_client
 
 class QdrantClient:
     def __init__(self, settings: Settings) -> None:
@@ -18,7 +16,6 @@ class QdrantClient:
 
         self.base_url = settings.QDRANT_HOST
         self.qdrant_collection = settings.QDRANT_COLLECTION
-        self.deepinfra_client = make_deepinfra_client("Qwen/Qwen3-Embedding-8B")
         
         logger.debug(f"Qdrant host set to: {self.base_url}")
         logger.debug(f"Qdrant collection set to: {self.qdrant_collection}")
