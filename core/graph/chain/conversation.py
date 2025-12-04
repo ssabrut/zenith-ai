@@ -41,10 +41,10 @@ Catatan Penting:
 - Bersikap sabar dan suportif, terutama untuk pelanggan yang khawatir tentang kondisi kulit mereka."""
 
 def build_conversational_chain(llm: BaseChatModel) -> Runnable:
-    prompt = ChatPromptTemplate.from_messages([
-        ("system", SYSTEM_PROMPT),
-        ("human", "{query}")
-    ])
+   prompt = ChatPromptTemplate.from_messages([
+      ("system", SYSTEM_PROMPT),
+      ("human", "{query}")
+   ])
 
-    chain = prompt | llm
-    return chain
+   chain = prompt | llm
+   return chain

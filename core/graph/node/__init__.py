@@ -1,4 +1,4 @@
-from .conversation import ConversationNode
+from .general import GeneralNode
 from .router import RouterNode
 
-__all__ = ["ConversationNode", "RouterNode"]
+__all__ = ["GeneralNode", "RouterNode"]

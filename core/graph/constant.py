@@ -1,5 +1,5 @@
 ROUTER = "router"
-GENERATE = "generate"
-RAG = "rag"
-BOOKING = "booking"
+GENERAL = "general_chat"
+INQUIRY = "inquiry_agent"
+BOOKING = "booking_agent"
 TOOLS = "tools"

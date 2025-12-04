@@ -6,7 +6,7 @@ from core.services.deepinfra.factory import make_deepinfra_client
 from core.graph.chain import build_conversational_chain
 from core.globals import mcp_tools
 
-class ConversationNode:
+class GeneralNode:
     def __init__(self, model_name: str = "openai/gpt-oss-20b") -> None:
         self.llm = make_deepinfra_client(model_name)
         self.chain = build_conversational_chain(self.llm.model)

@@ -3,7 +3,7 @@ from fastapi.responses import StreamingResponse
 from typing import AsyncGenerator
 
 from core.graph.workflow import app
-from core.graph.constant import GENERATE
+from core.graph.constant import GENERAL
 from core.schemas import ChatRequest
 
 router = APIRouter()
@@ -15,7 +15,7 @@ async def response_generator(query: str, thread_id: str) -> AsyncGenerator[str, 
     try:
         async for event in app.astream(initial_state, config=config, version="v1"):
             for node_name, state_update in event.items():
-                if node_name == GENERATE:
+                if node_name == GENERAL:
                     messages = state_update.get("messages", [])
                     if messages:
                         last_msg = messages[-1]

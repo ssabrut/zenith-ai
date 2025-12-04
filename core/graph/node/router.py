@@ -6,9 +6,9 @@ from core.services.deepinfra.factory import make_deepinfra_client
 from core.graph.state import GraphState
 
 class RouteQuery(BaseModel):
-    datasource: Literal["vectorstore", "booking_tool", "general_chat"] = Field(
+    datasource: Literal["inquiry_agent", "booking_agent", "general_chat"] = Field(
         ...,
-        description="Given a user query, choost to route it to `vectorstore` (for information/prices/inquiry), `booking_tool` (for appointments), or `general_chat`."
+        description="Pilih rute: 'inquiry_agent' untuk info/harga/medis, 'booking_agent' untuk janji temu, atau 'general_chat' untuk obrolan ringan."
     )
 
 class RouterNode:
@@ -16,10 +16,25 @@ class RouterNode:
         llm = make_deepinfra_client(model_name).model
         self.structured_llm = llm.with_structured_output(RouteQuery)
 
-        system = """You are an expert router.
-        - If the user asks about treatments, prices, locations, or skin problems, route to 'vectorstore'.
-        - If the user wants to book, cancel, reschedule, or check appointments, route to 'booking_tool'.
-        - Otherwise, route to 'general_chat'."""
+        system = """Anda adalah router ahli untuk klinik dermatologi. Tugas Anda mengarahkan pertanyaan pengguna ke agen yang tepat.
+
+        ATURAN ROUTING:
+        1. **inquiry_agent**: Pilih ini jika pengguna bertanya tentang:
+           - Harga, biaya, atau paket perawatan.
+           - Jenis facial, laser, atau produk skincare.
+           - Masalah kulit (jerawat, flek, kusam).
+           - Lokasi klinik atau jam operasional.
+
+        2. **booking_agent**: Pilih ini jika pengguna ingin:
+           - Membuat janji temu (booking/reservasi).
+           - Mengubah jadwal (reschedule) atau membatalkan janji.
+           - Mengecek jadwal dokter.
+
+        3. **general_chat**: Pilih ini HANYA untuk:
+           - Sapaan ("Halo", "Selamat pagi").
+           - Ucapan terima kasih.
+           - Obrolan ringan yang tidak butuh info medis atau booking.
+        """
 
         self.prompt = ChatPromptTemplate.from_messages([
             ("system", system),
