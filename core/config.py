@@ -44,4 +44,27 @@ class Settings(DefaultSettings):
     MLFLOW_TRACKING_URI: str = Field(..., env="MLFLOW_TRACKING_URI")
 
 def get_settings() -> Settings:
-    return Settings()
+    settings: Settings = Settings()
+    new_mlflow_uri: str
+    new_s3_uri: str
+    new_qdrant_host: str
+
+    print(f"IS_DOCKER: {settings.IS_DOCKER}")
+    if settings.IS_DOCKER:
+        new_mlflow_uri = settings.MLFLOW_TRACKING_URI
+        new_s3_uri = settings.MLFLOW_S3_ENDPOINT_URL
+        new_qdrant_host = settings.QDRANT_HOST
+    else:
+        new_mlflow_uri = "http://127.0.0.1:5050"
+        new_s3_uri = "http://127.0.0.1:9002"
+        new_qdrant_host = "localhost"
+    
+    updated_settings = settings.model_copy(
+        update={
+            "MLFLOW_TRACKING_URI": new_mlflow_uri,
+            "MLFLOW_S3_ENDPOINT_URL": new_s3_uri,
+            "QDRANT_HOST": new_qdrant_host,
+        }
+    )
+
+    return updated_settings

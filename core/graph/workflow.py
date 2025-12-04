@@ -37,7 +37,7 @@ def build_graph():
         }
     )
 
-    workflow.add_edge(RAG, GENERATE)
+    # workflow.add_edge(RAG, GENERATE)
     workflow.add_edge(GENERATE, END)
     checkpointer = MemorySaver()
 
