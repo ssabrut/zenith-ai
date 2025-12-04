@@ -9,7 +9,6 @@ from core.dependencies import load_settings
 from core.config import Settings
 from core.routers import chat as chat_router
 from core.routers import health as health_router
-from core.mcp.qdrant import server
 
 try:
     settings: Settings = load_settings()
@@ -46,5 +45,3 @@ def root():
 
 app.include_router(chat_router.router)
 app.include_router(health_router.router)
-
-app.mount("/tools", server.mcp.http_app(path="/mcp"))

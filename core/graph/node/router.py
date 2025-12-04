@@ -32,4 +32,5 @@ class RouterNode:
         print("---ROUTING QUERY---")
         query = state["query"]
         result = self.chain.invoke({"query": query})
+        print(f"--- ROUTING RESULT: {result.datasource} ---")
         return {"next_step": result.datasource}

@@ -88,7 +88,7 @@ class RerankerFeatureExtractor:
         
         return features
 
-@mcp.tool()
+@mcp.tool
 async def search_knowledge_base(query: str) -> Union[List[Dict], str]:
     print(f"🔎 MCP Search Query: {query}")
 
