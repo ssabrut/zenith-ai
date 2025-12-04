@@ -1,5 +1,5 @@
 # Dockerfile.frontend
-FROM python:3.11-slim
+FROM python:3.10-slim
 
 # 1. Set working directory
 WORKDIR /app
