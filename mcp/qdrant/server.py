@@ -20,7 +20,8 @@ REQUIRED_ENV_VARS = [
     "QDRANT_PORT",
     "QDRANT_COLLECTION",
     "MLFLOW_TRACKING_URI",
-    "DEEPINFRA_API_TOKEN"
+    "DEEPINFRA_API_TOKEN",
+    "MLFLOW_S3_ENDPOINT_URL"
 ]
 
 missing_vars = [var for var in REQUIRED_ENV_VARS if not os.getenv(var)]
@@ -36,21 +37,14 @@ QDRANT_COLLECTION = os.getenv("QDRANT_COLLECTION")
 MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI") if IS_DOCKER else "http://localhost:5050"
 DEEPINFRA_API_TOKEN = os.getenv("DEEPINFRA_API_TOKEN")
 
-if IS_DOCKER:
-    MLFLOW_S3_ENDPOINT_URL = os.getenv("MLFLOW_S3_ENDPOINT_URL")
-else:
-    MLFLOW_S3_ENDPOINT_URL = "http://localhost:9001"
-
 logger.info(f"Docker environment: {IS_DOCKER}")
-logger.info(f"Docker environment: {type(IS_DOCKER)}")
 logger.info(f"Using '{QDRANT_HOST}' as Qdrant host")
-logger.info(f"Tracking MLflow at {MLFLOW_TRACKING_URI}")
-logger.info(f"Using S3 at {MLFLOW_S3_ENDPOINT_URL}")
+logger.info(f"🔧 Configured MLflow URI: {MLFLOW_TRACKING_URI}")
 
 try:
     mlflow_client = mlflow.tracking.MlflowClient(
         tracking_uri=MLFLOW_TRACKING_URI, 
-        registry_uri=MLFLOW_S3_ENDPOINT_URL
+        registry_uri=MLFLOW_TRACKING_URI
     )
     qdrant_client = QdrantClient(host=QDRANT_HOST, port=QDRANT_PORT)
     deepinfra_embedding = DeepInfraEmbeddings(
@@ -92,8 +86,6 @@ async def lifespan(server: FastMCP):
     yield
 
 # --- Global Client Initialization ---
-# We initialize these globally, but actual connection errors will be caught during usage
-# to allow the server to start even if downstream services are temporarily blipping.
 mcp = FastMCP("Qdrant-tools-server", lifespan=lifespan)
 
 class RerankerFeatureExtractor:
