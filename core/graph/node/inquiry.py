@@ -89,7 +89,6 @@ class InquiryNode:
         logger.info(f"Processing inquiry for query: {query}...")
 
         try:
-                
             # Bind tools to the LLM for this specific call
             chain = self.prompt | self.llm.bind_tools(mcp_tools)
             response = chain.invoke({"query": query})

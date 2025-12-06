@@ -6,26 +6,32 @@ from core.graph.node import RouterNode, GeneralNode, InquiryNode
 from core.graph.state import GraphState
 from core.graph.constant import ROUTER, GENERAL, TOOLS, INQUIRY
 from core.globals import mcp_tools
+from core.graph.agent.inquiry import build_inquiry_agent
+from core.graph.agent.general import GeneralAgent
 
 def build_graph():
-    router_node = RouterNode()
-    general_node = GeneralNode()
-    inquiry_node = InquiryNode()
-
     workflow = StateGraph(GraphState)
-    workflow.add_node(ROUTER, router_node)
-    workflow.add_node(GENERAL, general_node)
-    workflow.add_node(INQUIRY, inquiry_node)
     
-    workflow.add_node(TOOLS, ToolNode(mcp_tools))
+    router_node = RouterNode()
+    general_agent = GeneralAgent()
+    print(mcp_tools)
+    inquiry_subgraph = build_inquiry_agent(mcp_tools)
 
+    workflow.add_node(ROUTER, router_node)
+    workflow.add_node(GENERAL, general_agent)
+
+    def call_inquiry(state):
+        response = inquiry_subgraph.invoke(state)
+        return {"messages": [response["messages"][-1]]}
+        
+    workflow.add_node(INQUIRY, call_inquiry)
     workflow.add_edge(START, ROUTER)
+    
     def route_decision(state):
         decision = state.get("next_step")
         if decision == "vectorstore":
             return INQUIRY
-        else:
-            return GENERAL
+        return GENERAL
 
     workflow.add_conditional_edges(
         ROUTER,
@@ -36,14 +42,7 @@ def build_graph():
         }
     )
 
-    workflow.add_conditional_edges(
-        INQUIRY,
-        tools_condition,
-        {TOOLS: TOOLS, END: END}
-    )
-
-    workflow.add_edge(TOOLS, INQUIRY)
-    
+    workflow.add_edge(INQUIRY, END)
     workflow.add_edge(GENERAL, END)
     checkpointer = MemorySaver()
 

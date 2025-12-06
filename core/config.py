@@ -43,6 +43,8 @@ class Settings(DefaultSettings):
     MLFLOW_DB_NAME: str = Field(..., env="MLFLOW_DB_NAME")
     MLFLOW_TRACKING_URI: str = Field(..., env="MLFLOW_TRACKING_URI")
 
+    MCP_SERVER_URL: str = Field("http://localhost:8001/sse", env="MCP_SERVER_URL")
+
 def get_settings() -> Settings:
     settings: Settings = Settings()
     new_mlflow_uri: str
@@ -54,16 +56,19 @@ def get_settings() -> Settings:
         new_mlflow_uri = settings.MLFLOW_TRACKING_URI
         new_s3_uri = settings.MLFLOW_S3_ENDPOINT_URL
         new_qdrant_host = settings.QDRANT_HOST
+        new_mcp_url = "http://mcp_server:8001/sse"
     else:
         new_mlflow_uri = "http://127.0.0.1:5050"
         new_s3_uri = "http://127.0.0.1:9002"
         new_qdrant_host = "localhost"
+        new_mcp_url = "http://localhost:8001/sse"
     
     updated_settings = settings.model_copy(
         update={
             "MLFLOW_TRACKING_URI": new_mlflow_uri,
             "MLFLOW_S3_ENDPOINT_URL": new_s3_uri,
             "QDRANT_HOST": new_qdrant_host,
+            "MCP_SERVER_URL": new_mcp_url
         }
     )
 

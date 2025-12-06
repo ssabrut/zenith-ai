@@ -9,6 +9,8 @@ services:
   #     - "8000:8000"
   #   env_file:
   #     - .env
+  #   environment:
+  #     - MCP_SERVER_URL=http://mcp_server:8001/sse
   #   networks:
   #     - zenith_shared_network
   #   depends_on:
@@ -17,6 +19,8 @@ services:
   #     db:
   #       condition: service_healthy
   #     mlflow:
+  #       condition: service_started
+  #     mcp_server:
   #       condition: service_started
   #   healthcheck:
   #     test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
@@ -104,7 +108,7 @@ services:
     networks:
       - zenith_shared_network
     volumes:
-      - minio_new_volume:/data
+      - ./data/minio_data:/data
     healthcheck:
       test:
         [
@@ -186,6 +190,3 @@ services:
 networks:
   zenith_shared_network:
     driver: bridge
-
-volumes:
-  minio_new_volume:

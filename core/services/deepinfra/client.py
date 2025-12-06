@@ -7,7 +7,6 @@ from langchain_community.embeddings import DeepInfraEmbeddings
 from core.config import Settings
 from core.schemas import ServiceStatus
 
-
 class DeepInfraClient:
     model: ChatDeepInfra
 
@@ -30,7 +29,7 @@ class DeepInfraClient:
                 model=model,
                 temperature=temperature,
                 deepinfra_api_token=self.deepinfra_api_token,
-                max_tokens=max_tokens
+                max_tokens=max_tokens,
             )
         elif model == "Qwen/Qwen3-Embedding-8B":
             self.model = DeepInfraEmbeddings(

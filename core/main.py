@@ -1,3 +1,4 @@
+import asyncio
 import sys
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
@@ -15,7 +16,7 @@ from core.graph.workflow import build_graph
 
 try:
     settings: Settings = load_settings()
-    MCP_SERVER_URL = "http://localhost:8001/sse"
+    MCP_SERVER_URL = settings.MCP_SERVER_URL
 except ValidationError as e:
     print(f"FATAL: Application configuration is invalid.\n{e}", file=sys.stderr)
     sys.exit(1)
@@ -24,7 +25,23 @@ except ValidationError as e:
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     app.state.settings = load_settings()
     mcp_client = MCPClient(MCP_SERVER_URL)
-    await mcp_client.connect()
+
+    print(f"🔌 Connecting to MCP Server at {MCP_SERVER_URL}...")
+    connected = False
+    for attempt in range(15):
+        try:
+            await mcp_client.connect()
+            connected = True
+            print("✅ Successfully connected to MCP Server.")
+            break
+        except Exception as e:
+            # It is normal for this to fail a few times while the other container starts
+            print(f"⏳ MCP Server not ready yet. Retrying in 2s... (Attempt {attempt+1}/15)")
+            await asyncio.sleep(2)
+            
+    if not connected:
+        print("❌ CRITICAL: Could not connect to MCP Server after multiple attempts. Exiting.")
+        sys.exit(1)
 
     try:
         fetched_tools = await mcp_client.get_tools()
