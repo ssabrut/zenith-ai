@@ -84,7 +84,7 @@ with gr.Blocks(title="ERHA/Dermies AI Agent") as demo:
     
     # Use type="messages" for dictionary format
     chatbot = gr.Chatbot(
-        max_height=500,
+        max_height=900,
         avatar_images=(None, "🤖")
     )
 

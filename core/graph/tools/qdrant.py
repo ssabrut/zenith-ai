@@ -37,6 +37,8 @@ def load_reranker():
     except Exception as e:
         logger.error(f"❌ Could not load Reranker: {e}. Falling back to raw vector search.")
 
+reranker = load_reranker()
+
 @tool
 async def search_knowledge_base(query: str) -> Union[List[Dict[str, Any]], str]:
     """
