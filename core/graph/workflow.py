@@ -1,30 +1,21 @@
 from langgraph.graph import START, END, StateGraph
 from langgraph.checkpoint.memory import MemorySaver
-from langgraph.prebuilt import ToolNode, tools_condition
 
-from core.graph.node import RouterNode, GeneralNode, InquiryNode
+from core.graph.node import RouterNode
 from core.graph.state import GraphState
-from core.graph.constant import ROUTER, GENERAL, TOOLS, INQUIRY
-from core.graph.agent.inquiry import build_inquiry_agent
-from core.graph.agent.general import GeneralAgent
+from core.graph.constant import ROUTER, GENERAL, INQUIRY
+from core.graph.agent import GeneralAgent, InquiryAgent
 
 def build_graph():
     workflow = StateGraph(GraphState)
     
     router_node = RouterNode()
     general_agent = GeneralAgent()
-    inquiry_subgraph = build_inquiry_agent()
+    inquiry_agent = InquiryAgent()
 
     workflow.add_node(ROUTER, router_node)
     workflow.add_node(GENERAL, general_agent)
-
-    async def call_inquiry(state: GraphState):
-        query = state["query"]
-        messages = {"messages": [{"role": "user", "content": query}]}
-        response = await inquiry_subgraph.ainvoke(messages)
-        return {"messages": [response["messages"][-1]]}
-        
-    workflow.add_node(INQUIRY, call_inquiry)
+    workflow.add_node(INQUIRY, inquiry_agent)
     workflow.add_edge(START, ROUTER)
     
     def route_decision(state):
