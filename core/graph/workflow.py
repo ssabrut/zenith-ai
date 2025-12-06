@@ -4,18 +4,18 @@ from langgraph.checkpoint.memory import MemorySaver
 from core.graph.node import RouterNode
 from core.graph.state import GraphState
 from core.graph.constant import ROUTER, GENERAL, INQUIRY
-from core.graph.agent import GeneralAgent, InquiryAgent
+from core.graph.node import GeneralNode, InquiryNode
 
 def build_graph():
     workflow = StateGraph(GraphState)
     
     router_node = RouterNode()
-    general_agent = GeneralAgent()
-    inquiry_agent = InquiryAgent()
+    general_node = GeneralNode()
+    inquiry_node = InquiryNode()
 
     workflow.add_node(ROUTER, router_node)
-    workflow.add_node(GENERAL, general_agent)
-    workflow.add_node(INQUIRY, inquiry_agent)
+    workflow.add_node(GENERAL, general_node)
+    workflow.add_node(INQUIRY, inquiry_node)
     workflow.add_edge(START, ROUTER)
     
     def route_decision(state):
