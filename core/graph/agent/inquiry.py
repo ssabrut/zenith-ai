@@ -1,7 +1,10 @@
 from langchain.agents import create_agent
-from core.services.deepinfra.factory import make_deepinfra_client
+from langchain.messages import SystemMessage
 
-def build_inquiry_agent(tools: list):
+from core.services.deepinfra.factory import make_deepinfra_client
+from core.graph.tools import qdrant
+
+def build_inquiry_agent():
     """
     Builds a ReAct agent that handles the Inquiry loop (Search -> Answer).
     """
@@ -20,7 +23,7 @@ def build_inquiry_agent(tools: list):
 
     agent = create_agent(
         model=model,
-        tools=tools,
+        tools=[qdrant.search_knowledge_base],
         system_prompt=system_prompt
     )
     

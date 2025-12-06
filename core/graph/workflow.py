@@ -5,7 +5,6 @@ from langgraph.prebuilt import ToolNode, tools_condition
 from core.graph.node import RouterNode, GeneralNode, InquiryNode
 from core.graph.state import GraphState
 from core.graph.constant import ROUTER, GENERAL, TOOLS, INQUIRY
-from core.globals import mcp_tools
 from core.graph.agent.inquiry import build_inquiry_agent
 from core.graph.agent.general import GeneralAgent
 
@@ -14,14 +13,15 @@ def build_graph():
     
     router_node = RouterNode()
     general_agent = GeneralAgent()
-    print(mcp_tools)
-    inquiry_subgraph = build_inquiry_agent(mcp_tools)
+    inquiry_subgraph = build_inquiry_agent()
 
     workflow.add_node(ROUTER, router_node)
     workflow.add_node(GENERAL, general_agent)
 
-    def call_inquiry(state):
-        response = inquiry_subgraph.invoke(state)
+    async def call_inquiry(state: GraphState):
+        query = state["query"]
+        messages = {"messages": [{"role": "user", "content": query}]}
+        response = await inquiry_subgraph.ainvoke(messages)
         return {"messages": [response["messages"][-1]]}
         
     workflow.add_node(INQUIRY, call_inquiry)
