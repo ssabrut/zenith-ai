@@ -2,7 +2,7 @@ from langchain.agents import create_agent
 
 from core.services.deepinfra.factory import make_deepinfra_client
 from core.graph.state import GraphState
-from core.graph.tools import qdrant
+from core.graph.tools import tools
 
 class InquiryAgent:
     def __init__(self, model_id: str = "openai/gpt-oss-20b"):
@@ -21,7 +21,7 @@ class InquiryAgent:
 
         self.agent = create_agent(
             model=self.model,
-            tools=[qdrant.search_knowledge_base],
+            tools=tools,
             system_prompt=self.system_prompt
         )
 
