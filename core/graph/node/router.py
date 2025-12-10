@@ -6,9 +6,9 @@ from core.services.deepinfra.factory import make_deepinfra_client
 from core.graph.state import GraphState
 
 class RouteQuery(BaseModel):
-    datasource: Literal["vectorstore", "database_tool", "booking_tool", "general"] = Field(
+    datasource: Literal["inquiry", "database", "booking", "general"] = Field(
         ...,
-        description="Pilih rute: 'vectorstore' (info statis/harga), 'database_tool' (info real-time/jadwal), 'booking_tool' (buat janji), atau 'general' (obrolan)."
+        description="Pilih rute: 'inquiry' (info statis/harga), 'database' (info real-time/jadwal), 'booking' (buat janji), atau 'general' (obrolan)."
     )
 
 class RouterNode:
@@ -16,25 +16,29 @@ class RouterNode:
         llm = make_deepinfra_client(model_name).model
         self.structured_llm = llm.with_structured_output(RouteQuery)
 
-        system = """Anda adalah Router Cerdas.
+        system = """You are the Main Dispatcher for a Dermatology Clinic.
         
-        STATUS BOOKING SAAT INI: {booking_status}
-        (Jika 'True', berarti user sedang dalam proses tanya jawab data booking)
+        CONTEXT:
+        Booking In-Progress: {booking_status} 
+        (If TRUE, the user is currently in the middle of a booking flow).
 
-        ATURAN ROUTING:
+        ROUTING RULES:
         
-        KONDISI 1: JIKA BOOKING STATUS = 'True':
-        - Prioritaskan **booking_tool** jika input user berupa jawaban pendek (Nama, Tanggal, Jam, Ya/Tidak).
-        - Hanya pilih **vectorstore** jika user bertanya soal harga/produk ("Berapa harganya?", "Apa itu facial A?").
-        - Hanya pilih **database_tool** jika user bertanya jadwal dokter ("Dr Budi ada?").
-        - Pilih **booking_tool** untuk melanjutkan proses data.
+        1. **booking**:
+           - PRIORITIZE this if 'Booking In-Progress' is TRUE and the user provides data (Name, Date, "Yes", "No").
+           - Use this if the user EXPLICITLY wants to start booking ("I want to book", "Make appointment").
+           - Use this if the user wants to CANCEL ("Cancel booking").
+           
+        2. **inquiry** (Inquiry):
+           - Use this for questions about Prices, Treatments, Locations, or Medical Info.
+           - EVEN IF 'Booking In-Progress' is TRUE, if the user asks a question (e.g., "Wait, how much is it?"), route here. (This is an INTERRUPTION).
 
-        KONDISI 2: JIKA BOOKING STATUS = 'False':
-        - **vectorstore**: Pertanyaan umum/harga/medis.
-        - **database_tool**: Cek jadwal/status real-time.
-        - **booking_tool**: Ingin membuat janji baru.
-        - **general**: Sapaan/obrolan ringan.
-        """
+        3. **database**:
+           - Use for checking Doctor Schedules or specific Availability ("Is Dr. Budi available?").
+           - This is also an INTERRUPTION if booking is in progress.
+
+        4. **general**:
+           - Only for "Hi", "Thanks", "Bye"."""
 
         self.prompt = ChatPromptTemplate.from_messages([
             ("system", system),

@@ -51,9 +51,10 @@ class BookingAgent:
         else:
             updated_details = current_details.copy()
 
-        for key, value in extracted_data.model_dump().items():
-            if value is not None:
-                updated_details[key] = value
+        if extracted_data:
+            for key, value in extracted_data.model_dump().items():
+                if value is not None:
+                    updated_details[key] = value
 
         required_fields = ["name", "phone_number", "date", "time"] 
         missing_fields = [k for k in required_fields if not updated_details.get(k)]

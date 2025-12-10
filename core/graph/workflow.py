@@ -19,30 +19,11 @@ def build_graph():
     workflow.add_node(INQUIRY, inquiry_node)
     workflow.add_node(DATABASE, sql_node)
     workflow.add_node(BOOKING, booking_node)
-
-    def check_active_flow(state):
-        if state.get("booking_active"):
-            return BOOKING
-        return ROUTER
     
-    workflow.add_conditional_edges(
-        START,
-        check_active_flow,
-        {
-            BOOKING: BOOKING,
-            ROUTER: ROUTER
-        }
-    )
+    workflow.add_edge(START, ROUTER)
     
     def route_decision(state):
-        decision = state.get("next_step")
-        if decision == "vectorstore":
-            return INQUIRY
-        elif decision == "database_tool":
-            return DATABASE
-        elif decision == "booking_tool":
-            return BOOKING
-        return GENERAL
+        return state.get("next_step", GENERAL)
 
     workflow.add_conditional_edges(
         ROUTER,
