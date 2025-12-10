@@ -13,7 +13,7 @@ class DeepInfraClient:
     def __init__(
         self,
         settings: Settings,
-        model: Literal["openai/gpt-oss-20b", "Qwen/Qwen3-Embedding-8B"],
+        model: Literal["openai/gpt-oss-20b", "Qwen/Qwen3-Embedding-8B", "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo"],
         temperature: float = 0,
         max_tokens: int = 2048
     ) -> None:
@@ -24,21 +24,21 @@ class DeepInfraClient:
 
         self.deepinfra_api_token = settings.DEEPINFRA_API_TOKEN
 
-        if model == "openai/gpt-oss-20b":
-            self.model = ChatDeepInfra(
-                model=model,
-                temperature=temperature,
-                deepinfra_api_token=self.deepinfra_api_token,
-                max_tokens=max_tokens,
-            )
-        elif model == "Qwen/Qwen3-Embedding-8B":
+        if model == "Qwen/Qwen3-Embedding-8B":
             self.model = DeepInfraEmbeddings(
                 model_id=model,
                 query_instruction="",
                 embed_instruction="",
                 deepinfra_api_token=self.deepinfra_api_token
             )
-
+        else:
+            self.model = ChatDeepInfra(
+                model=model,
+                temperature=temperature,
+                deepinfra_api_token=self.deepinfra_api_token,
+                max_tokens=max_tokens,
+            )
+            
     async def health_check(self) -> ServiceStatus:
         messages = [
             HumanMessage(

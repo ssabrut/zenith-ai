@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 from typing import AsyncGenerator
+from langchain_core.messages import HumanMessage
 
 import core.globals as global_state
 from core.graph.constant import GENERAL, INQUIRY
@@ -13,7 +14,10 @@ async def response_generator(query: str, thread_id: str) -> AsyncGenerator[str, 
         yield "⚠️ System Error: The AI Graph is not initialized yet. Please check server logs."
         return
     
-    initial_state = {"query": query}
+    initial_state = {
+        "query": query,
+        "messages": [HumanMessage(content=query)]
+    }
     config = {"configurable": {"thread_id": thread_id}}
 
     try:

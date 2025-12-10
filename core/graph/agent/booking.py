@@ -1,4 +1,5 @@
 from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.messages import AIMessage
 
 from core.services.deepinfra.factory import make_deepinfra_client
 from core.schemas import BookingSchema
@@ -38,10 +39,17 @@ class BookingAgent:
     def __call__(self, state: GraphState):
         messages = state["messages"]
         current_details = state.get("booking_details", {})
+        if not messages:
+            return {"messages": [AIMessage(content="Maaf, saya tidak menangkap informasi Anda. Bisa diulangi?")]}
+
+        current_details = state.get("booking_details", {}) or {}
         extraction_chain = self.extraction_prompt | self.extractor
 
-        extracted_data: BookingSchema = extraction_chain.invoke({"messages", messages})
-        updated_details = current_details.copy()
+        extracted_data: BookingSchema = extraction_chain.invoke({"messages": messages})
+        if hasattr(current_details, "model_dump"):
+            updated_details = current_details.model_dump().copy()
+        else:
+            updated_details = current_details.copy()
 
         for key, value in extracted_data.model_dump().items():
             if value is not None:

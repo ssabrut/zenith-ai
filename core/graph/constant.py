@@ -1,4 +1,5 @@
 ROUTER = "router"
-GENERAL = "general_chat"
-INQUIRY = "inquiry_agent"
-BOOKING = "booking_agent"
+GENERAL = "general"
+INQUIRY = "inquiry"
+BOOKING = "booking"
+DATABASE = "database"
