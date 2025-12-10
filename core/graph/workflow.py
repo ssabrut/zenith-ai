@@ -46,6 +46,15 @@ def build_graph():
     workflow.add_edge(INQUIRY, END)
     workflow.add_edge(GENERAL, END)
     workflow.add_edge(DATABASE, END)
+    def check_booking_status(state):
+        return END 
+
+    workflow.add_conditional_edges(
+        BOOKING,
+        check_booking_status,
+        {END: END}
+    )
+    
     checkpointer = MemorySaver()
 
     app = workflow.compile(checkpointer=checkpointer)

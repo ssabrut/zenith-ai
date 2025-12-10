@@ -4,7 +4,7 @@ from typing import AsyncGenerator
 from langchain_core.messages import HumanMessage
 
 import core.globals as global_state
-from core.graph.constant import GENERAL, INQUIRY
+from core.graph.constant import GENERAL, INQUIRY, DATABASE, BOOKING
 from core.schemas import ChatRequest
 
 router = APIRouter()
@@ -23,7 +23,7 @@ async def response_generator(query: str, thread_id: str) -> AsyncGenerator[str, 
     try:
         async for event in global_state.graph_app.astream(initial_state, config=config, version="v1"):
             for node_name, state_update in event.items():
-                if node_name in [GENERAL, INQUIRY]:
+                if node_name in [GENERAL, INQUIRY, DATABASE, BOOKING]:
                     messages = state_update.get("messages", [])
                     if messages:
                         last_msg = messages[-1]
