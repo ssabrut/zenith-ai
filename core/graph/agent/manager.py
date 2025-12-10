@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
 from typing import Literal
 from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.messages import AIMessage
 
 from core.services.deepinfra.factory import make_deepinfra_client
 from core.graph.state import GraphState
@@ -8,7 +9,7 @@ from core.graph.state import GraphState
 class Decision(BaseModel):
     next_step: Literal["inquiry", "database", "booking", "general", "FINISH"] = Field(
         ...,
-        description="The worker node to call next, or `FINISH` if the AI should stop and wait for user input."
+        description="Langkah selanjutnya atau 'FINISH'."
     )
 
 class ManagerAgent:
@@ -16,24 +17,26 @@ class ManagerAgent:
         self.llm = make_deepinfra_client(model_id).model
         self.structured_llm = self.llm.with_structured_output(Decision)
 
-        self.system_prompt = """You are the Supervisor (Manager) of a Dermatology Clinic AI.
-        You manage a team of workers:
-        1. **inquiry**: Answers questions about prices, treatments, and general info.
-        2. **database**: Checks real-time doctor schedules and appointment status.
-        3. **booking**: Handles the appointment creation process (collects Name, Date, etc.).
-        4. **general**: Handles greetings and small talk.
+        self.system_prompt = """Anda adalah Supervisor (Manager) AI Klinik.
+        
+        TUGAS ANDA:
+        Memutuskan siapa yang berbicara selanjutnya berdasarkan pesan TERAKHIR.
 
-        CONTEXT:
-        Booking Active: {booking_status}
+        PEKERJA:
+        - inquiry, database, booking, general.
+        - FINISH: Gunakan ini untuk berhenti dan menunggu input user.
 
-        YOUR GOAL:
-        Decide the NEXT step based on the conversation history.
+        ATURAN PENTING UNTUK MENCEGAH LOOP:
+        1. **CEK PESAN TERAKHIR**:
+           - Jika pesan terakhir adalah dari **AI (Assistant)**: Outputkan **FINISH**.
+           - (Kecuali jika Anda perlu memanggil agen lain secara berantai, misal: User tanya harga DAN booking).
+        
+        2. **JANGAN ULANGI**:
+           - Jika user berkata "Halo" dan AI sudah menjawab "Halo", JANGAN panggil 'general' lagi. Outputkan **FINISH**.
 
-        RULES:
-        - If the last message was a question from a worker (e.g., Booking asked "What is your name?"), output **FINISH** to wait for the user.
-        - If the user asks multiple things (e.g., "Price and Book"), schedule the **inquiry** first, then the **booking**.
-        - If 'Booking Active' is TRUE, prioritize **booking** UNLESS the user asks a specific question (Interruption) -> then send to **inquiry** or **database**.
-        - If the user just says "Hello", send to **general**."""
+        3. **CHAINING**:
+           - Jika User minta "Cek harga lalu booking", dan 'inquiry' baru saja menjawab harga -> Panggil 'booking'.
+           - Jika 'booking' baru saja bertanya "Siapa nama Anda?" -> Outputkan **FINISH**."""
 
         self.prompt = ChatPromptTemplate.from_messages([
             ("system", self.system_prompt),
@@ -44,14 +47,23 @@ class ManagerAgent:
 
     def __call__(self, state: GraphState):
         is_active = state.get("booking_active", False)
+        messages = state.get("messages", [])
+        last_message = messages[-1] if messages else None
+
+        if isinstance(last_message, AIMessage):
+            print("🔍 Pesan terakhir dari AI. Memeriksa apakah perlu lanjut...")
 
         try:
             decision = self.chain.invoke({
-                "messages": state["messages"],
+                "messages": messages,
                 "booking_status": str(is_active)
             })
 
-            next_step = decision.next_step
+            if decision is None:
+                print("⚠️ Manager returned None. Fallback to 'general'.")
+                next_step = "general"
+            else:
+                next_step = decision.next_step
         except Exception as e:
             print(f"Manager error: {e}")
             next_step = "general"

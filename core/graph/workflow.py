@@ -2,44 +2,49 @@ from langgraph.graph import START, END, StateGraph
 from langgraph.checkpoint.memory import MemorySaver
 
 from core.graph.state import GraphState
-from core.graph.constant import ROUTER, GENERAL, INQUIRY, BOOKING, DATABASE
-from core.graph.node import GeneralNode, InquiryNode, RouterNode, BookingNode, SQLNode
+from core.graph.constant import ROUTER, GENERAL, INQUIRY, BOOKING, DATABASE, MANAGER
+from core.graph.node import GeneralNode, InquiryNode, RouterNode, BookingNode, SQLNode, ManagerNode
 
 def build_graph():
     workflow = StateGraph(GraphState)
     
-    router_node = RouterNode()
+    manager_node = ManagerNode()
     general_node = GeneralNode()
     inquiry_node = InquiryNode()
     sql_node = SQLNode()
     booking_node = BookingNode()
 
-    workflow.add_node(ROUTER, router_node)
+    workflow.add_node(MANAGER, manager_node)
     workflow.add_node(GENERAL, general_node)
     workflow.add_node(INQUIRY, inquiry_node)
     workflow.add_node(DATABASE, sql_node)
     workflow.add_node(BOOKING, booking_node)
     
-    workflow.add_edge(START, ROUTER)
-    
-    def route_decision(state):
-        return state.get("next_step", GENERAL)
+    workflow.add_edge(START, MANAGER)
+
+    def manager_routing(state: GraphState):
+        step = state.get("next_step")
+
+        if step == "FINISH":
+            return END
+        return step
 
     workflow.add_conditional_edges(
-        ROUTER,
-        route_decision,
+        MANAGER,
+        manager_routing,
         {
             INQUIRY: INQUIRY,
             DATABASE: DATABASE,
+            BOOKING: BOOKING,
             GENERAL: GENERAL,
-            BOOKING: BOOKING
+            END: END
         }
     )
 
+    workflow.add_edge(BOOKING, MANAGER)
+    workflow.add_edge(DATABASE, END)
     workflow.add_edge(INQUIRY, END)
     workflow.add_edge(GENERAL, END)
-    workflow.add_edge(DATABASE, END)
-    workflow.add_edge(BOOKING, END)
     
     checkpointer = MemorySaver()
 
