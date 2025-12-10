@@ -16,31 +16,24 @@ class RouterNode:
         llm = make_deepinfra_client(model_name).model
         self.structured_llm = llm.with_structured_output(RouteQuery)
 
-        system = """Anda adalah Router Cerdas untuk Klinik Dermatologi. Tugas Anda mengklasifikasikan niat pengguna ke salah satu dari 4 tujuan berikut:
+        system = """Anda adalah Router Cerdas.
+        
+        STATUS BOOKING SAAT INI: {booking_status}
+        (Jika 'True', berarti user sedang dalam proses tanya jawab data booking)
 
         ATURAN ROUTING:
         
-        1. **vectorstore**: 
-           - Gunakan untuk pertanyaan UMUM dan STATIS.
-           - Topik: Harga/Biaya perawatan, Penjelasan jenis facial/laser, Masalah kulit, Lokasi klinik.
-           - Contoh: "Berapa harga laser?", "Apa bedanya facial A dan B?", "Klinik buka jam berapa?".
-        
-        2. **database_tool**: 
-           - Gunakan untuk mencari data SPESIFIK/REAL-TIME (Read-Only).
-           - Topik: Ketersediaan dokter, mengecek jadwal praktek, melihat status janji temu yang sudah ada.
-           - Contoh: "Apakah Dr. Budi ada hari Senin?", "Siapa dokter yang tersedia besok?", "Cek jadwal Dr. Siti".
-        
-        3. **booking_tool**: 
-           - Gunakan JIKA DAN HANYA JIKA pengguna ingin MEMBUAT, MENGUBAH, atau MEMBATALKAN janji temu (Action/Write).
-           - Contoh: "Saya mau booking", "Reservasi untuk besok", "Daftarkan saya ke Dr. Siti jam 9", "Reschedule janji saya".
-        
-        4. **general**: 
-           - Pilih ini HANYA untuk sapaan atau obrolan ringan.
-           - Contoh: "Halo", "Selamat pagi", "Terima kasih", "Hai".
+        KONDISI 1: JIKA BOOKING STATUS = 'True':
+        - Prioritaskan **booking_tool** jika input user berupa jawaban pendek (Nama, Tanggal, Jam, Ya/Tidak).
+        - Hanya pilih **vectorstore** jika user bertanya soal harga/produk ("Berapa harganya?", "Apa itu facial A?").
+        - Hanya pilih **database_tool** jika user bertanya jadwal dokter ("Dr Budi ada?").
+        - Pilih **booking_tool** untuk melanjutkan proses data.
 
-        PENTING:
-        - Jika pengguna bertanya "Kapan Dr. Budi praktek?", arahkan ke **database_tool**.
-        - Jika pengguna berkata "Saya mau ketemu Dr. Budi", arahkan ke **booking_tool**.
+        KONDISI 2: JIKA BOOKING STATUS = 'False':
+        - **vectorstore**: Pertanyaan umum/harga/medis.
+        - **database_tool**: Cek jadwal/status real-time.
+        - **booking_tool**: Ingin membuat janji baru.
+        - **general**: Sapaan/obrolan ringan.
         """
 
         self.prompt = ChatPromptTemplate.from_messages([
@@ -52,13 +45,19 @@ class RouterNode:
 
     def __call__(self, state: GraphState):
         query = state["query"]
+        is_active = state.get("booking_active", False)
+        status_str = "True" if is_active else "False"
+        
         print(f"---ROUTING QUERY: {query}---")
+        print(f"---ROUTING (BookingActive: {status_str})---")
         
         try:
-            result = self.chain.invoke({"query": query})
+            result = self.chain.invoke({
+                "query": query, 
+                "booking_status": status_str
+            })
             destination = result.datasource
-        except Exception as e:
-            print(f"⚠️ Routing Error: {e}. Fallback to general.")
+        except Exception:
             destination = "general"
 
         print(f"---ROUTED TO: {destination}---")

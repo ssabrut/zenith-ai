@@ -55,6 +55,10 @@ class BookingAgent:
             if value is not None:
                 updated_details[key] = value
 
+        required_fields = ["name", "phone_number", "date", "time"] 
+        missing_fields = [k for k in required_fields if not updated_details.get(k)]
+        is_active = len(missing_fields) > 0
+
         response_chain = self.response_prompt | self.llm
         response = response_chain.invoke({
             "messages": messages,
@@ -64,5 +68,6 @@ class BookingAgent:
         return {
             "booking_details": updated_details,
             "messages": [response],
-            "next_step": "end"
+            "next_step": "end",
+            "booking_active": is_active
         }

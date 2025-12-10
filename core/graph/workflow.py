@@ -19,8 +19,20 @@ def build_graph():
     workflow.add_node(INQUIRY, inquiry_node)
     workflow.add_node(DATABASE, sql_node)
     workflow.add_node(BOOKING, booking_node)
+
+    def check_active_flow(state):
+        if state.get("booking_active"):
+            return BOOKING
+        return ROUTER
     
-    workflow.add_edge(START, ROUTER)
+    workflow.add_conditional_edges(
+        START,
+        check_active_flow,
+        {
+            BOOKING: BOOKING,
+            ROUTER: ROUTER
+        }
+    )
     
     def route_decision(state):
         decision = state.get("next_step")
@@ -46,14 +58,7 @@ def build_graph():
     workflow.add_edge(INQUIRY, END)
     workflow.add_edge(GENERAL, END)
     workflow.add_edge(DATABASE, END)
-    def check_booking_status(state):
-        return END 
-
-    workflow.add_conditional_edges(
-        BOOKING,
-        check_booking_status,
-        {END: END}
-    )
+    workflow.add_edge(BOOKING, END)
     
     checkpointer = MemorySaver()
 
