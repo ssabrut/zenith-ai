@@ -18,25 +18,31 @@ class ManagerAgent:
         self.structured_llm = self.llm.with_structured_output(Decision)
 
         self.system_prompt = """Anda adalah Supervisor (Manager) AI Klinik.
-        
+
+        KONTEKS SAAT INI:
+        Booking Active: {booking_status}
+        (TRUE = User sedang dalam proses mengisi form reservasi).
+
         TUGAS ANDA:
-        Memutuskan siapa yang berbicara selanjutnya berdasarkan pesan TERAKHIR.
+        Arahkan pesan user ke agen yang tepat.
 
-        PEKERJA:
-        - inquiry, database, booking, general.
-        - FINISH: Gunakan ini untuk berhenti dan menunggu input user.
+        ATURAN ROUTING (PRIORITAS TINGGI):
 
-        ATURAN PENTING UNTUK MENCEGAH LOOP:
-        1. **CEK PESAN TERAKHIR**:
-           - Jika pesan terakhir adalah dari **AI (Assistant)**: Outputkan **FINISH**.
-           - (Kecuali jika Anda perlu memanggil agen lain secara berantai, misal: User tanya harga DAN booking).
-        
-        2. **JANGAN ULANGI**:
-           - Jika user berkata "Halo" dan AI sudah menjawab "Halo", JANGAN panggil 'general' lagi. Outputkan **FINISH**.
+        1. **ATURAN KHUSUS 'BOOKING ACTIVE' = TRUE**:
+           - JIKA user memberikan **DATA** (Contoh: "Nama saya Budi", "0812345", "Senin depan", "Jam 10", "Ya/Tidak") -> **WAJIB ke 'booking'**.
+             (Ini berarti user sedang melanjutkan pengisian form yang tertunda).
+           - JIKA user bertanya info ("Berapa harganya?", "Apa itu facial?") -> Ke **'inquiry'** (Interupsi).
+           - JIKA user bertanya jadwal ("Dokter Budi ada?") -> Ke **'database'** (Interupsi).
 
-        3. **CHAINING**:
-           - Jika User minta "Cek harga lalu booking", dan 'inquiry' baru saja menjawab harga -> Panggil 'booking'.
-           - Jika 'booking' baru saja bertanya "Siapa nama Anda?" -> Outputkan **FINISH**."""
+        2. **ATURAN UMUM**:
+           - Ingin reservasi/janji temu -> **'booking'**.
+           - Pertanyaan medis/harga/lokasi -> **'inquiry'**.
+           - Cek jadwal/ketersediaan dokter -> **'database'**.
+           - Sapaan ("Halo", "Pagi") -> **'general'**.
+
+        3. **STOP CONDITION**:
+           - Jika pesan TERAKHIR adalah pertanyaan dari AI (misal: "Siapa nama Anda?"), outputkan **FINISH**.
+           - Jangan panggil agen dua kali untuk hal yang sama."""
 
         self.prompt = ChatPromptTemplate.from_messages([
             ("system", self.system_prompt),

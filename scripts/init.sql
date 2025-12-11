@@ -5,7 +5,6 @@ CREATE TABLE IF NOT EXISTS patients (
     id SERIAL PRIMARY KEY,
     full_name VARCHAR(100) NOT NULL,
     phone_number VARCHAR(20) UNIQUE NOT NULL,
-    email VARCHAR(100),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -13,7 +12,6 @@ CREATE TABLE IF NOT EXISTS patients (
 CREATE TABLE IF NOT EXISTS doctors (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    specialization VARCHAR(100),
     phone_number VARCHAR(20),
     is_active BOOLEAN DEFAULT TRUE
 );
@@ -44,7 +42,7 @@ CREATE TABLE IF NOT EXISTS appointments (
     id SERIAL PRIMARY KEY,
     patient_id INT REFERENCES patients(id),
     doctor_id INT REFERENCES doctors(id),
-    treatment_id INT REFERENCES treatments(id),
+    treatment VARCHAR(255),
     appointment_date TIMESTAMP NOT NULL, -- Specific date and time (e.g., 2023-10-25 10:00:00)
     status VARCHAR(20) DEFAULT 'Scheduled', -- 'Scheduled', 'Completed', 'Cancelled', 'No Show'
     notes TEXT,
@@ -58,23 +56,18 @@ CREATE INDEX idx_patients_phone ON patients(phone_number);
 -- --- SEED DATA (Dummy Data for Testing) ---
 
 INSERT INTO doctors (name, specialization) VALUES 
-('Dr. Budi Santoso', 'Dermatologist'),
-('Dr. Siti Aminah', 'Aesthetic Physician');
+('Dr. Budi Santoso', '0987654321'),
+('Dr. Siti Aminah', '0123456789');
 
--- Dr. Budi is available Mon & Wed 9-17
+-- Dr. Budi is available
 INSERT INTO doctor_schedules (doctor_id, day_of_week, start_time, end_time) VALUES
 (1, 'Monday', '09:00', '17:00'),
-(1, 'Wednesday', '09:00', '17:00');
+(1, 'Tuesday', '09:00', '17:00'),
+(1, 'Wednesday', '09:00', '17:00'),
+(1, 'Friday', '09:00', '17:00');
 
--- Dr. Siti is available Tue & Thu 10-18
+-- Dr. Siti is available
 INSERT INTO doctor_schedules (doctor_id, day_of_week, start_time, end_time) VALUES
-(2, 'Tuesday', '10:00', '18:00'),
-(2, 'Thursday', '10:00', '18:00');
-
-INSERT INTO treatments (name, price, duration_minutes) VALUES
-('Acne Facial', 350000, 60),
-('Laser Rejuvenation', 1500000, 45),
-('Chemical Peeling', 500000, 30);
-
-INSERT INTO patients (full_name, phone_number) VALUES
-('Andi Pratama', '081234567890');
+(2, 'Thursday', '10:00', '18:00'),
+(2, 'Saturday', '10:00', '18:00'),
+(2, 'Sunday', '10:00', '18:00');
