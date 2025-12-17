@@ -5,22 +5,20 @@ FROM python:3.10-slim AS builder
 
 WORKDIR /app
 
-# Install build dependencies (compilers and development headers)
+# 1. Install system build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libpq-dev \
-    curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install uv
-RUN pip install --no-cache-dir uv
+# 2. FIX: Copy 'uv' directly from the official image (No pip install needed)
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 
-# Copy requirements first to leverage Docker caching
+# 3. Create venv and install dependencies
+# We use --compile-bytecode to speed up startup time
 COPY requirements.txt .
-
-# Create a virtual environment and install dependencies
 RUN uv venv /opt/venv && \
-    uv pip install --no-cache -r requirements.txt --python /opt/venv
+    uv pip install --no-cache -r requirements.txt --python /opt/venv --compile-bytecode
 
 # ==========================================
 # Stage 2: Runtime
@@ -29,36 +27,27 @@ FROM python:3.10-slim AS runtime
 
 WORKDIR /app
 
-# Set environment variables
-# PYTHONDONTWRITEBYTECODE: Prevents Python from writing .pyc files
-# PYTHONUNBUFFERED: Ensures logs are flushed immediately
-# PATH: Adds our virtual env to the path automatically
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PATH="/opt/venv/bin:$PATH"
 
-# Install ONLY runtime dependencies
+# Install ONLY runtime libs (libpq5 for Postgres)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq5 \
-    jq \
     curl \
+    jq \
     && rm -rf /var/lib/apt/lists/*
 
-# Create a non-root user for security
 RUN groupadd -g 1000 appuser && \
     useradd -u 1000 -g appuser -s /bin/bash -m appuser
 
-# Copy the virtual environment from the builder stage
+# Copy venv from builder
 COPY --from=builder /opt/venv /opt/venv
 
-# Copy application code
 COPY --chown=appuser:appuser . .
 
-# Switch to the non-root user
 USER appuser
 
-# Expose the port (informational)
 EXPOSE 8000
 
-# Default command
 CMD ["uvicorn", "core.main:app", "--host", "0.0.0.0", "--port", "8000"]

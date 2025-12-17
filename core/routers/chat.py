@@ -4,7 +4,7 @@ from typing import AsyncGenerator
 from langchain_core.messages import HumanMessage
 
 import core.globals as global_state
-from core.graph.constant import GENERAL, INQUIRY, DATABASE, BOOKING
+from graph.constant import GENERAL, INQUIRY, DATABASE, BOOKING
 from core.schemas import ChatRequest
 
 router = APIRouter()

@@ -10,7 +10,7 @@ from core.dependencies import load_settings
 from core.config import Settings
 from core.routers import chat as chat_router
 from core.routers import health as health_router
-from core.graph.workflow import build_graph
+from graph.workflow import build_graph
 
 try:
     settings: Settings = load_settings()

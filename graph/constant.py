@@ -1,0 +1,6 @@
+ROUTER = "router"
+MANAGER = "manager"
+GENERAL = "general"
+INQUIRY = "inquiry"
+BOOKING = "booking"
+DATABASE = "database"

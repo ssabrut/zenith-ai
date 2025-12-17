@@ -10,7 +10,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # 3. Copy the entire project
-# We need 'core/' because app_frontend.py imports 'core.graph.workflow'
+# We need 'core/' because app_frontend.py imports 'graph.workflow'
 COPY . .
 
 # 4. Set Environment Variables
